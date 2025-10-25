@@ -1,0 +1,8 @@
+#ifndef __GIF_OPERATIONS_H__
+#define __GIF_OPERATIONS_H__
+
+int gif_apply(const char *gifpath, const char *current_dir);
+void gif_open(const char *gifname, const char *gif_dir);
+int gif_refresh_caelestia(void);
+
+#endif // __GIF_OPERATIONS_H__

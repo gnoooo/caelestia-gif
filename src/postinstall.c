@@ -99,7 +99,7 @@ void sub_variables(char *dest, size_t size, const char *src) {
     const char *p = src;
     char *b = buffer;
 
-    while (*p && (b - buffer) < sizeof(buffer) - 1) {
+    while (*p && (long unsigned int)(b - buffer) < sizeof(buffer) - 1) {
         if (strncmp(p, "$HOME", 5) == 0) {
             strncpy(b, home, sizeof(buffer) - (b - buffer) - 1);
             b += strlen(home);
@@ -150,7 +150,7 @@ int edit_shell_json(void) {
     }
     // file exists
     fseek(fp, 0, SEEK_END);
-    long fsize = ftell(fp);
+    long unsigned int fsize = ftell(fp);
     rewind(fp);
 
     char *buffer = malloc(fsize + 1);

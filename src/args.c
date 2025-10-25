@@ -1,0 +1,170 @@
+#include "args.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#ifndef VERSION
+#define VERSION "unknown"
+#endif
+
+/**
+ * @brief Print version information
+ */
+void args_print_version(void) {
+    printf("caelestia-gif version %s\n", VERSION);
+}
+
+/**
+ * @brief Print main help message
+ */
+void args_print_help_main(void) {
+    printf("usage: caelestia-gif [-h] [-v] [--init] COMMAND ...\n");
+    printf("\n");
+    printf("Main control script for Caelestia GIFs\n");
+    printf("\n");
+    printf("options:\n");
+    printf("  -h, --help     show this help message and exit\n");
+    printf("  -v, --version  print the current version\n");
+    printf("  --init         run post-installation setup\n");
+    printf("\n");
+    printf("subcommands:\n");
+    printf("  COMMAND        the subcommand to run\n");
+    printf("    session      run in session mode (to change sessionGif)\n");
+    printf("    media        run in media mode (NOT IMPLEMENTED YET)\n");
+    printf("    cli          run in CLI mode (NOT IMPLEMENTED YET)\n");
+}
+
+
+/**
+ * @brief Print session mode help message
+ */
+void args_print_help_session(void) {
+    printf("usage: caelestia-gif session [-h] [-r]\n");
+    printf("\n");
+    printf("Interactive session GIF selector\n");
+    printf("\n");
+    printf("options:\n");
+    printf("  -h, --help        show this help message and exit\n");
+    printf("  -r, --regenerate  regenerate all thumbnails\n");
+}
+
+/**
+ * @brief Print media mode help message
+ */
+void args_print_help_media(void) {
+    printf("usage: caelestia-gif media [-h] [-r]\n");
+    printf("\n");
+    printf("Interactive media GIF selector (NOT IMPLEMENTED YET)\n");
+    printf("\n");
+    printf("options:\n");
+    printf("  -h, --help        show this help message and exit\n");
+    printf("  -r, --regenerate  regenerate all thumbnails\n");
+}
+
+/**
+ * @brief Initialize Args structure with default values
+ */
+static Args args_init_defaults(void) {
+    Args args = {0};
+    args.show_help = 0;
+    args.show_version = 0;
+    args.init_mode = 0;
+    args.regenerate = 0;
+    args.session_mode = 0;
+    args.media_mode = 0;
+    args.cli_mode = 0;
+    return args;
+}
+
+/**
+ * @brief Parse subcommand-specific options
+ */
+static int args_parse_subcommand(Args *args, int argc, char *argv[], 
+                                 int start_idx, const char *subcommand) {
+    for (int i = start_idx; i < argc; i++) {
+        if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
+            args->show_help = 1;
+            return 0;
+        } else if (strcmp(argv[i], "-r") == 0 || strcmp(argv[i], "--regenerate") == 0) {
+            args->regenerate = 1;
+        } else {
+            fprintf(stderr, "Error: Unknown argument for %s mode: %s\n", 
+                    subcommand, argv[i]);
+            return -1;
+        }
+    }
+    return 0;
+}
+
+/**
+ * @brief Parse command-line arguments
+ */
+Args args_parse(int argc, char *argv[]) {
+    Args args = args_init_defaults();
+    
+    // No arguments - show help
+    if (argc == 1) {
+        args.show_help = 1;
+        return args;
+    }
+    
+    // Parse arguments
+    for (int i = 1; i < argc; i++) {
+        // Global options
+        if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
+            args.show_help = 1;
+            return args;
+        } 
+        else if (strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-v") == 0) {
+            args.show_version = 1;
+            return args;
+        } 
+        else if (strcmp(argv[i], "--init") == 0) {
+            args.init_mode = 1;
+            return args;
+        }
+        
+        // Subcommands
+        else if (strcmp(argv[i], "session") == 0) {
+            args.session_mode = 1;
+            
+            // Parse session-specific options
+            if (args_parse_subcommand(&args, argc, argv, i + 1, "session") != 0) {
+                args.show_help = 1;
+                args.session_mode = 0;
+            }
+            return args;
+        }
+        else if (strcmp(argv[i], "media") == 0) {
+            args.media_mode = 1;
+            
+            // Parse media-specific options
+            if (args_parse_subcommand(&args, argc, argv, i + 1, "media") != 0) {
+                args.show_help = 1;
+                args.media_mode = 0;
+            }
+            
+            // Media mode not implemented yet
+            fprintf(stderr, "Error: media mode not implemented yet.\n");
+            args.show_help = 1;
+            args.media_mode = 0;
+            return args;
+        }
+        else if (strcmp(argv[i], "cli") == 0) {
+            args.cli_mode = 1;
+            
+            // CLI mode not implemented yet
+            fprintf(stderr, "Error: CLI mode not implemented yet.\n");
+            args.show_help = 1;
+            args.cli_mode = 0;
+            return args;
+        }
+        else {
+            fprintf(stderr, "Error: Unknown command or option: %s\n", argv[i]);
+            args.show_help = 1;
+            return args;
+        }
+    }
+    
+    return args;
+}
