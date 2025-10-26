@@ -102,7 +102,7 @@ By default, Caelestia GIF Manager uses the following directory structure to stor
     │   ├── mediaGif/
     │   │   └── [your_gifs]
     │   │
-    │   └─── .current/
+    │   └── .current/
     │       ├── session.gif
     │       └── media.gif
     │
