@@ -255,7 +255,7 @@ int edit_shell_json(void) {
         base_dir = strdup(cae);
     } else if (home) {
         // env variable not set, use default
-        const char *default_parts[] = {home, "/Pictures/CaelestiaGifs/sessionGif/current/current.gif"};
+        const char *default_parts[] = {home, "/Pictures/CaelestiaGifs/"};
         base_dir = alloc_concat(default_parts, 2);
     } else {
         fprintf(stderr, FG_RED "Error: HOME env not set\n" FG_DEFAULT);
@@ -269,11 +269,21 @@ int edit_shell_json(void) {
         return -1;
     }
 
+    const char *path_parts[] = {base_dir, "/.current/session.gif"};
+    char *session_gif_path = alloc_concat(path_parts, 2);
+
+    if (!session_gif_path) {
+        fprintf(stderr, FG_RED "Memory allocation failed for session gif path.\n" FG_DEFAULT);
+        free(base_dir);
+        cJSON_Delete(json);
+        return -1;
+    }
+
     cJSON *sessiongif = cJSON_GetObjectItem(paths, "sessionGif");
     if (sessiongif) {
-        cJSON_ReplaceItemInObject(paths, "sessionGif", cJSON_CreateString(base_dir));
+        cJSON_ReplaceItemInObject(paths, "sessionGif", cJSON_CreateString(session_gif_path));
     } else {
-        cJSON_AddStringToObject(paths, "sessionGif", base_dir);
+        cJSON_AddStringToObject(paths, "sessionGif", session_gif_path);
     }
 
     free(base_dir);

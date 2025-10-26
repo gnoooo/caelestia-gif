@@ -1,5 +1,6 @@
 #include "gif_operations.h"
 #include "utils.h"
+#include "filesystem.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,35 +11,45 @@
  * @brief Apply the selected GIF as the current session GIF
  *
  * @param gifpath Path to the selected GIF file
- * @param current_dir Directory where current.gif should be placed
+ * @param base_dir Directory of Caelestia GIFs (root directory)
+ * @param type session, media, etc. (finish with .gif)
  * @return int 0 on success, -1 on failure
  */
-int gif_apply(const char *gifpath, const char *current_dir) {
-    if (!gifpath || !current_dir) {
+int gif_apply(const char *gifpath, const char *current_dir, const char *typemode) {
+    if (!gifpath || !current_dir || !typemode) {
         fprintf(stderr, "Error: Invalid parameters for gif_apply\n");
         return -1;
     }
 
-    // construct path to current.gif
-    const char *currentgifparts[] = {current_dir, "/current.gif"};
-    char *current_gif = alloc_concat(currentgifparts, 2);
-    
+     
+    if (ensure_dir(current_dir) != 0) {
+        fprintf(stderr, "Error: Failed to ensure .current directory exists\n");
+        return -1;
+    }
+
+    const char *targetparts[] = {current_dir, "/", typemode};
+    char *target_path = alloc_concat(targetparts, 3);
+
     // delete existing current.gif (ignore errors if it doesn't exist)
-    unlink(current_gif);
+    unlink(target_path);
 
     // copy selected GIF to current.gif
-    const char *cmdparts[] = {"cp ", gifpath, " ", current_gif};
+    const char *cmdparts[] = {"cp ", gifpath, " ", target_path};
     char *cmd = alloc_concat(cmdparts, 4);
     
     int result = run_cmd(cmd);
     if (result != 0) {
-        fprintf(stderr, "Error: Failed to copy GIF to current.gif\n");
+        fprintf(stderr, "Error: Failed to copy %s to %s\n", gifpath, target_path);
+        free(target_path);
+        free(cmd);
         return -1;
     }
 
     // refresh Caelestia
     gif_refresh_caelestia();
 
+    free(target_path);
+    free(cmd);
     return 0;
 }
 

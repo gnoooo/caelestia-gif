@@ -14,7 +14,7 @@ typedef struct {
     int need_full_redraw;  // Flag to force full screen redraw
 } UIState;
 
-int ui_session_loop(const Config *cfg, char **gifs, char **thumbs, int ngifs, int nthumbs);
+int ui_session_loop(const Config *cfg, char **gifs, char **thumbs, int ngifs, int nthumbs, const char *typemode);
 int ui_draw_header(const char **lines, int n_lines, int margin);
 const char* ui_get_basename(const char *path);
 

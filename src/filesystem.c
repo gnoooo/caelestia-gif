@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <errno.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
@@ -17,19 +18,47 @@
  * @param path The path to the directory.
  * @return int 0 on success, -1 on failure.
  */
-int ensure_dir(const char *path) {
-    struct stat st;
 
-    // check if the directory already exists
-    if (stat(path, &st) == 0) {
-        // if it exists, check if it's a directory
-        return S_ISDIR(st.st_mode) ? 0 : -1;
+int ensure_dir(const char *path) {
+    if (!path || !*path) {
+        fprintf(stderr, "Error: Null or empty path passed to ensure_dir()\n");
+        return -1;
     }
 
-    // create the directory with permissions rwx------
-    return mkdir(path, 0700);
-}
+    char tmp[PATH_MAX];
+    strncpy(tmp, path, sizeof(tmp) - 1);
+    tmp[sizeof(tmp) - 1] = '\0';
 
+    // remove trailing slashes
+    size_t len = strlen(tmp);
+    while (len > 0 && tmp[len - 1] == '/') {
+        tmp[--len] = '\0';
+    }
+
+    // iterate and create directories as needed
+    for (char *p = tmp + 1; *p; p++) {
+        if (*p == '/') {
+            *p = '\0';
+            if (access(tmp, F_OK) != 0) {
+                if (mkdir(tmp, 0755) != 0 && errno != EEXIST) {
+                    fprintf(stderr, "Error: Failed to create directory '%s': %s\n", tmp, strerror(errno));
+                    return -1;
+                }
+            }
+            *p = '/';
+        }
+    }
+
+    // create the final directory
+    if (access(tmp, F_OK) != 0) {
+        if (mkdir(tmp, 0755) != 0 && errno != EEXIST) {
+            fprintf(stderr, "Error: Failed to create directory '%s': %s\n", tmp, strerror(errno));
+            return -1;
+        }
+    }
+
+    return 0;
+}
 
 /**
  * @brief Scan directory for GIFs (return count and fill list). Caller must free list entries.

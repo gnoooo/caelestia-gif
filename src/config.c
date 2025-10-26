@@ -55,7 +55,7 @@ Config* config_init(void) {
 
     // construct full paths (to allocate the exact size of memory needed)
     const char *gifdirparts[] = {sessiongifs_folder, "/CaelestiaGifs/sessionGif"};
-    const char *currentdirparts[] = {sessiongifs_folder, "/CaelestiaGifs/sessionGif/current"};
+    const char *currentdirparts[] = {sessiongifs_folder, "/CaelestiaGifs/.current"};
     const char *thumbcacheparts[] = {HOME, "/.cache/caelestia_gifs_thumb"};
     const char *thumbsessionparts[] = {HOME, "/.cache/caelestia_gifs_thumb/sessionGif"};
 

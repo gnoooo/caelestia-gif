@@ -111,7 +111,7 @@ int main(int argc, char *argv[]) {
         terminal_setup_signals();
         
         // run interactive session selector
-        int selected = ui_session_loop(cfg, gifs, thumbs, ngifs, nthumbs);
+        int selected = ui_session_loop(cfg, gifs, thumbs, ngifs, nthumbs, "session.gif");
         
         // restore terminal
         terminal_restore();

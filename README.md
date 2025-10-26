@@ -80,7 +80,7 @@ It :
 - Creates a default configuration file for Caelestia shell if missing.
 - Adds or updates the `sessionGif` entry (later `mediaGif` too) to point to your current GIF, by default:
 ```bash
-    ~/Pictures/CaelestiaGifs/sessionGif/current/current.gif"
+    ~/Pictures/CaelestiaGifs/.current/session.gif"
 ```
 
 ### Environment Variables
@@ -97,13 +97,15 @@ By default, Caelestia GIF Manager uses the following directory structure to stor
 └── Pictures/
     ├── CaelestiaGifs/
     │   ├── sessionGif/
-    │   │   ├── current/
-    │   │   │   └── current.gif
     │   │   └── [your_gifs]
-    │   └── mediaGif/
-    │       ├── current/
-    │       │   └── current.gif
-    │       └── [your_gifs]
+    │   │
+    │   ├── mediaGif/
+    │   │   └── [your_gifs]
+    │   │
+    │   └─── .current/
+    │       ├── session.gif
+    │       └── media.gif
+    │
     └── .cache/
         └── caelestia_gifs_thumb/
             ├── sessionGif/

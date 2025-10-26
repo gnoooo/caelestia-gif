@@ -230,8 +230,14 @@ static int ui_handle_input(UIState *state, char **gifs, const Config *cfg) {
 /**
  * @brief Run interactive session selection loop
  */
-int ui_session_loop(const Config *cfg, char **gifs, char **thumbs, 
-                    int ngifs, int nthumbs) {
+int ui_session_loop(
+        const Config *cfg, 
+        char **gifs, 
+        char **thumbs, 
+        int ngifs, 
+        int nthumbs,
+        const char *typemode
+    ) {
     if (!cfg || !gifs || ngifs == 0) return -1;
     
     // determine display list (thumbnails if available, otherwise GIFs)
@@ -283,7 +289,7 @@ int ui_session_loop(const Config *cfg, char **gifs, char **thumbs,
             return -1;
         } else if (action == 2) {
             // select and apply
-            gif_apply(gifs[state.selected], config_get_current_dir(cfg));
+            gif_apply(gifs[state.selected], config_get_current_dir(cfg), typemode);
             return state.selected;
         } else if (action == 3) {
             // open GIF with default application
