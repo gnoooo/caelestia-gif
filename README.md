@@ -42,7 +42,7 @@ The repository will soon contain an `install.sh` file. This file is a simple Bas
 ## Usage
 To run Caelestia GIF Manager, simply execute the following command in your terminal:
 ```bash
-caelestia-gif [subcommand]
+caelestia-gif [-h] [-v] [--init] [subcommand] [flags] 
 ```
 
 
