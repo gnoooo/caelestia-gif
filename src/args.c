@@ -78,18 +78,32 @@ static Args args_init_defaults(void) {
 
 /**
  * @brief Parse subcommand-specific options
+ *
+ * @param args Pointer to Args structure to populate
+ * @param argc Argument count
+ * @param argv Argument vector
+ * @param start_idx Index to start parsing from
+ * @param subcommand Name of the subcommand being parsed
  */
-static int args_parse_subcommand(Args *args, int argc, char *argv[], 
-                                 int start_idx, const char *subcommand) {
+static int args_parse_subcommand(
+        Args *args, 
+        int argc, 
+        char *argv[], 
+        int start_idx, 
+        const char *subcommand
+    ) {
+    // parse subcommand-specific options
     for (int i = start_idx; i < argc; i++) {
         if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
+            // if help is requested, set show_help and return
             args->show_help = 1;
             return 0;
         } else if (strcmp(argv[i], "-r") == 0 || strcmp(argv[i], "--regenerate") == 0) {
+            // if regenerate is requested, set regenerate flag
             args->regenerate = 1;
         } else {
-            fprintf(stderr, "Error: Unknown argument for %s mode: %s\n", 
-                    subcommand, argv[i]);
+            // else unknown argument
+            fprintf(stderr, "Error: Unknown argument for %s mode: %s\n", subcommand, argv[i]);
             return -1;
         }
     }
@@ -98,59 +112,70 @@ static int args_parse_subcommand(Args *args, int argc, char *argv[],
 
 /**
  * @brief Parse command-line arguments
+ *
+ * @param argc Argument count
+ * @param argv Argument vector
  */
 Args args_parse(int argc, char *argv[]) {
     Args args = args_init_defaults();
     
-    // No arguments - show help
+    // no arguments, show help
     if (argc == 1) {
         args.show_help = 1;
         return args;
     }
     
-    // Parse arguments
+    // parse arguments
     for (int i = 1; i < argc; i++) {
-        // Global options
+        // global options
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
+            // if help is requested, set show_help and return
             args.show_help = 1;
             return args;
         } 
         else if (strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-v") == 0) {
+            // if version is requested, set show_version and return
             args.show_version = 1;
             return args;
         } 
         else if (strcmp(argv[i], "--init") == 0) {
+            // if init is requested, set init_mode and return
             args.init_mode = 1;
             return args;
         }
         
-        // Subcommands
+        // subcommands
         else if (strcmp(argv[i], "session") == 0) {
+            // if session mode is requested, set session_mode
             args.session_mode = 1;
             
-            // Parse session-specific options
+            // parse session-specific options
             if (args_parse_subcommand(&args, argc, argv, i + 1, "session") != 0) {
+                // if error in parsing, show help for session mode
                 args.show_help = 1;
                 args.session_mode = 0;
             }
             return args;
         }
         else if (strcmp(argv[i], "media") == 0) {
+            // if media mode is requested, set media_mode
             args.media_mode = 1;
             
-            // Parse media-specific options
+            // parse media-specific options
             if (args_parse_subcommand(&args, argc, argv, i + 1, "media") != 0) {
+                // if error in parsing, show help for media mode
                 args.show_help = 1;
                 args.media_mode = 0;
             }
             
-            // Media mode not implemented yet
+            // media mode not implemented yet
             fprintf(stderr, "Error: media mode not implemented yet.\n");
             args.show_help = 1;
             args.media_mode = 0;
             return args;
         }
         else if (strcmp(argv[i], "cli") == 0) {
+            // if cli mode is requested, set cli_mode
             args.cli_mode = 1;
             
             // CLI mode not implemented yet
@@ -160,6 +185,7 @@ Args args_parse(int argc, char *argv[]) {
             return args;
         }
         else {
+            // else unknown command
             fprintf(stderr, "Error: Unknown command or option: %s\n", argv[i]);
             args.show_help = 1;
             return args;

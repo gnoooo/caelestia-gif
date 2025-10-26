@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include "color.h"
+#include "utils.h"
 
 
 /*
@@ -37,36 +38,50 @@
  *  4. Print success message
  */
 
+/**
+ * Create the CAELESTIA_GIFS_FOLDER environment variable if it does not exist.
+ * The default value is $HOME/Pictures/CaelestiaGifs
+ */
 int create_env_variable(void) {
+    // get HOME env variable
     const char *home = getenv("HOME");
     if (home == NULL) {
         fprintf(stderr, FG_RED "Error: HOME environment variable not set.\n" FG_DEFAULT);
         return -1;
     }
 
+    // check if CAELESTIA_GIFS_FOLDER is set
     const char *gif_folder = getenv("CAELESTIA_GIFS_FOLDER");
     if (gif_folder == NULL) {
-        char path[512];
-        snprintf(path, sizeof(path), "%s/Pictures/CaelestiaGifs", home);
-        //printf("Setting CAELESTIA_GIFS_FOLDER to default: %s\n", path);
+        // not set, create it with default value
+        const char *pathparts[] = {home, "/Pictures/CaelestiaGifs"};
+        char *path = alloc_concat(pathparts, 2);
         setenv("CAELESTIA_GIFS_FOLDER", path, 1);
-        //printf("Environment variable CAELESTIA_GIFS_FOLDER created successfully: %s\n", getenv("CAELESTIA_GIFS_FOLDER"));
     }
 
     return 0;
 }
 
+/**
+ * Backup the shell.json file if it exists and no backup exists yet.
+ */
 int backup_shell_json(void) {
+    // get HOME env variable
     const char *home = getenv("HOME");
     if (home == NULL) {
         fprintf(stderr, FG_RED "Error: HOME environment variable not set.\n" FG_DEFAULT);
         return -1;
     }
-    char shell_json_path[512];
-    snprintf(shell_json_path, sizeof(shell_json_path), "%s/.config/caelestia/shell.json", home);
-    //printf("Backing up shell.json from %s\n", shell_json_path);
-    char backup_path[512];
-    snprintf(backup_path, sizeof(backup_path), "%s/.config/caelestia/shell.bak.json", home);
+
+    // shell.json path
+    const char *shell_json_pathparts[] = {home, "/.config/caelestia/shell.json"};
+    char *shell_json_path = alloc_concat(shell_json_pathparts, 2);
+    
+    // backup path
+    const char *backup_pathparts[] = {home, "/.config/caelestia/shell.bak.json"};
+    char *backup_path = alloc_concat(backup_pathparts, 2);
+    
+    // check if shell.json exists
     FILE *shell_file = fopen(shell_json_path, "r");
     if (shell_file == NULL) {
         // shell.json does not exist, nothing to backup
@@ -75,14 +90,15 @@ int backup_shell_json(void) {
         fclose(shell_file);
         FILE *backup_file = fopen(backup_path, "r");
         if (backup_file != NULL) {
-            // Backup already exists, do nothing
+            // backup already exists, do nothing
             fclose(backup_file);
             printf("Backup already exists, skipping backup creation.\n");
         } else {
-            // Create backup
-            char command[2048];
-            snprintf(command, sizeof(command), "cp %s %s", shell_json_path, backup_path);
-            int result = system(command);
+            // create backup
+            const char *cmdparts[] = {"cp ", shell_json_path, " ", backup_path};
+            char *cmd = alloc_concat(cmdparts, 4);
+            
+            int result = system(cmd);
             if (result != 0) {
                 fprintf(stderr, FG_RED "Error creating backup of shell.json.\n" FG_DEFAULT);
                 return -1;
@@ -93,12 +109,24 @@ int backup_shell_json(void) {
     return 0;
 }
 
+/**
+ * Substitute environment variables in the source string.
+ * Currently supports only $HOME.
+ *
+ * @param dest Destination buffer
+ * @param size Size of the destination buffer
+ * @param src Source string
+ */
 void sub_variables(char *dest, size_t size, const char *src) {
+    // get HOME env variable 
     const char *home = getenv("HOME");
+
+    // simple substitution logic
     char buffer[1024] = {0};
     const char *p = src;
     char *b = buffer;
 
+    // substitute $HOME
     while (*p && (long unsigned int)(b - buffer) < sizeof(buffer) - 1) {
         if (strncmp(p, "$HOME", 5) == 0) {
             strncpy(b, home, sizeof(buffer) - (b - buffer) - 1);
@@ -112,42 +140,77 @@ void sub_variables(char *dest, size_t size, const char *src) {
     strncpy(dest, buffer, size);
 }
 
+/**
+ * Edit the shell.json file to set the sessionGif path.
+ * If the file does not exist, create it with default values.
+ */
 int edit_shell_json(void) {
-    char shell_json_path[512];
-    const char *home = getenv("HOME");
-    if (!home) { fprintf(stderr, FG_RED "Error: HOME env not set\n" FG_DEFAULT); return -1; }
-    snprintf(shell_json_path, sizeof(shell_json_path), "%s/.config/caelestia/shell.json", home);
+    // get shell.json path
+    const char *shell_json_pathparts[] = {getenv("HOME"), "/.config/caelestia/shell.json"};
+    char *shell_json_path = alloc_concat(shell_json_pathparts, 2);
 
+    // get HOME env variable
+    const char *home = getenv("HOME");
+    if (!home) { 
+        fprintf(stderr, FG_RED "Error: HOME env not set\n" FG_DEFAULT); 
+        return -1; 
+    }
+    const char *cae = getenv("CAELESTIA_GIFS_FOLDER");
+
+    // open shell.json
     FILE *fp = fopen(shell_json_path, "r");
-    //printf("if !fp? %s\n", fp ? "exists" : "does not exist");
     if (!fp) {
-        //printf("Creating default shell.json at %s\n", shell_json_path);
         // file does not exist: create default JSON
         cJSON *root = cJSON_CreateObject();
         cJSON *paths = cJSON_CreateObject();
         cJSON_AddItemToObject(root, "paths", paths);
 
-        // values to write
-        const char *cae = getenv("CAELESTIA_GIFS_FOLDER");
-        char defval[512];
-        snprintf(defval, sizeof(defval), "%s/%s", home, cae ? cae : "SessionGifs");
-        
-        char val[512];
-        // Préparer la chaîne avec variables
-        const char *raw_str = "$HOME/$CAELESTIA_GIFS_FOLDER/sessionGifs";
-        sub_variables(val, sizeof(val), raw_str);
-        //printf("val=%s\n", val);
-        // Ensuite l’insérer dans JSON
-        cJSON_AddStringToObject(paths, "sessionGif", val);
+        // determine base directory
+        char *base_dir = NULL;
+        if (cae) {
+            // env variable is set, use it
+            base_dir = strdup(cae);
+        } else {
+            // env variable not set, use default
+            const char *default_parts[] = {home, "/Pictures/CaelestiaGifs"};
+            base_dir = alloc_concat(default_parts, 2);
+        }
 
+        if (!base_dir) {
+            fprintf(stderr, FG_RED "Memory allocation failed.\n" FG_DEFAULT);
+            cJSON_Delete(root);
+            return -1;
+        }
+
+        const char *path_parts[] = {base_dir, "/sessionGif"};
+        char *session_gif_path = alloc_concat(path_parts, 2);
+
+        if (!session_gif_path) {
+            fprintf(stderr, FG_RED "Memory allocation failed.\n" FG_DEFAULT);
+            free(base_dir);
+            cJSON_Delete(root);
+            return -1;
+        }
+
+        // add the final revolved path to JSON
+        cJSON_AddStringToObject(paths, "sessionGif", session_gif_path);
+
+        // write to file
         char *string = cJSON_Print(root);
         fp = fopen(shell_json_path, "w");
-        fputs(string, fp);
-        fclose(fp);
+        if (fp) {
+            fputs(string, fp);
+            fclose(fp);
+        }
+
+        // cleanup
+        free(base_dir);
+        free(session_gif_path);
         cJSON_free(string);
         cJSON_Delete(root);
         return 0;
     }
+
     // file exists
     fseek(fp, 0, SEEK_END);
     long unsigned int fsize = ftell(fp);
@@ -185,22 +248,49 @@ int edit_shell_json(void) {
         cJSON_AddItemToObject(json, "paths", paths);
     }
 
-    // set sessiongif value
-    const char *cae = getenv("CAELESTIA_GIFS_FOLDER");
-    char value[512];
-    snprintf(value, sizeof(value), "%s/sessionGif/current/current.gif", cae ? cae : "sessionGif");
+
+    char *base_dir = NULL;
+    if (cae) {
+        // env variable is set, use it
+        base_dir = strdup(cae);
+    } else if (home) {
+        // env variable not set, use default
+        const char *default_parts[] = {home, "/Pictures/CaelestiaGifs/sessionGif/current/current.gif"};
+        base_dir = alloc_concat(default_parts, 2);
+    } else {
+        fprintf(stderr, FG_RED "Error: HOME env not set\n" FG_DEFAULT);
+        cJSON_Delete(json);
+        return -1;
+    }
+
+    if (!base_dir) {
+        fprintf(stderr, FG_RED "Memory allocation failed.\n" FG_DEFAULT);
+        cJSON_Delete(json);
+        return -1;
+    }
 
     cJSON *sessiongif = cJSON_GetObjectItem(paths, "sessionGif");
-    if (sessiongif)
-        cJSON_ReplaceItemInObject(paths, "sessionGif", cJSON_CreateString(value));
-    else
-        cJSON_AddStringToObject(paths, "sessionGif", value);
+    if (sessiongif) {
+        cJSON_ReplaceItemInObject(paths, "sessionGif", cJSON_CreateString(base_dir));
+    } else {
+        cJSON_AddStringToObject(paths, "sessionGif", base_dir);
+    }
+
+    free(base_dir);
 
     // save
     char *string = cJSON_Print(json);
     fp = fopen(shell_json_path, "w");
-    fputs(string, fp);
-    fclose(fp);
+    if (fp){
+        fputs(string, fp);
+        fclose(fp);
+    } else {
+        fprintf(stderr, FG_RED "Error opening shell.json for writing.\n" FG_DEFAULT);
+        cJSON_free(string);
+        cJSON_Delete(json);
+        return -1;
+    }
+
     cJSON_free(string);
     cJSON_Delete(json);
     return 0;

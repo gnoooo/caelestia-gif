@@ -45,19 +45,20 @@ int scan_gifs(const char *dir, char ***out_list) {
         return 0; 
     }
 
-    struct dirent *ent; 
-    char **list = NULL; 
-    size_t cap = 0;
-    size_t n = 0;
+    struct dirent *ent;  // directory entry pointer
+    char **list = NULL;  // list of GIF paths
+    size_t cap = 0;      // capacity of the list
+    size_t n = 0;        // number of GIFs found
 
+    // iterate over directory entries
     while ((ent=readdir(d))) {
         // filter to regular files only
         if (ent->d_type != DT_REG && ent->d_type != DT_UNKNOWN) {
             continue;
         }
 
-        const char *name = ent->d_name; 
-        size_t len = strlen(name);
+        const char *name = ent->d_name; // file name
+        size_t len = strlen(name);      // length of file name
 
         // filter to .gif files only
         if (len<5 || strcasecmp(name+len-4,".gif")!=0) { 
@@ -67,7 +68,7 @@ int scan_gifs(const char *dir, char ***out_list) {
         // ensure capacity
         if (n + 1 > cap) { 
             cap = cap ? cap * 2 : 32; 
-            char **newlist = realloc(list, cap * sizeof(char*)); 
+            char **newlist = realloc(list, cap * sizeof(char*)); // allocate more space
             if (!newlist) {
                 // allocate error: free previously allocated entries
                 for (size_t i = 0; i < n; i++) {
@@ -139,12 +140,14 @@ void open_gif(const char *gifname, const char *gif_dir) {
         return;
     }
 
+    // construct full path to the GIF
     const char *gifpathparts[] = {gif_dir, "/", gifname};
     char *gifpath = alloc_concat(gifpathparts, sizeof(gifpathparts)/sizeof(gifpathparts[0]));
     if (!gifpath) {
         fprintf(stderr, "Error: at open_gif: failed to allocate gifpath\n");
         return;
     }
+    // build command to open the GIF
     const char *cmdparts[] = {"xdg-open \"", gifpath, "\" >/dev/null 2>&1 &"};
     char *cmd = alloc_concat(cmdparts, sizeof(cmdparts)/sizeof(cmdparts[0]));
     if (!cmd) {

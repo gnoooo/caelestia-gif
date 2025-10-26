@@ -1,6 +1,8 @@
 # Caelestia GIF Manager (`caelestia-gif`)
 A terminal user interface (TUI) written in C for managing GIFs (sessionGif and mediaGif) in the Caelestia shell environment.
 
+[TOC]
+
 ## Introduction
 Caelestia GIF Manager is a lightweight TUI tool designed to easily browse, preview and set GIF for your Caelestia shell session menu and media player. It supports thumbnail generation (via ImageMagick) and display previews directly in the Kitty terminal emulator. Use the `session` subcommand to select a session GIF quickly.
 
@@ -10,8 +12,10 @@ There are many different ways to install Caelestia GIF Manager:
 1. From AUR (on Arch Linux)
 ```bash
 yay -S caelestia-gif
+caelestia-gif --init
 # or
 paru -S caelestia-gif
+caelestia-gif --init
 ```
 
 2. With the built-in Bash install script: (NOT IMPLEMENTED YET)
@@ -65,8 +69,9 @@ In the TUI:
 - `o`: open the selected GIF file (alternative to Kitty preview)
 - `q` or Ctrl+C: exit the TUI
 
-### What is `--init`?
-The command includes a setup helper, who can can be used with the command `caelestia-gif --init`. This command that automates the configuration of Caelestia GIF Manager so the script runs perfectly. 
+## Configuration
+### Post installation setup
+To use this tool, you will need to have a specific configuration (see [directory structure section](#default-directory-structure)). Caelestia GIF Manager includes a setup helper, who can can be used with the command `caelestia-gif --init`. This command automates the configuration of Caelestia GIF Manager so the script runs perfectly. 
 
 It :
 - Creates the default Caelestia GIF directory (`~/Pictures/CaelestiaGifs/`) if it doesn't exist.
@@ -77,6 +82,12 @@ It :
 ```bash
     ~/Pictures/CaelestiaGifs/sessionGif/current/current.gif"
 ```
+
+### Environment Variables
+You can customize the directory where Caelestia GIF Manager looks for GIFs by setting the following environment variables:
+- `CAELESTIA_GIF_DIR`: Sets the base directory for storing GIFs.
+
+Right now (1.0.2), the environment variable support is not fully implemented, so it's recommended to use the default directory structure or modify the source code directly. I will fix that in future releases.
 
 ## Default directory structure
 By default, Caelestia GIF Manager uses the following directory structure to store and manage GIFs:
@@ -117,3 +128,7 @@ Licensed under the GPL-3.0-or-later License. See the [LICENSE](https://gitlab.co
 - Improved installation script
 - Memory optimizations
 - Segmentation of code into multiple files for better maintainability (because right now it's a mess)
+- Change current.gif by a symlink to avoid copying files
+- Flag to force script to not use Kitty graphics protocol 
+- Flag for verbose
+

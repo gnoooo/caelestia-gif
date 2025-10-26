@@ -8,6 +8,10 @@
 
 /**
  * @brief Apply the selected GIF as the current session GIF
+ *
+ * @param gifpath Path to the selected GIF file
+ * @param current_dir Directory where current.gif should be placed
+ * @return int 0 on success, -1 on failure
  */
 int gif_apply(const char *gifpath, const char *current_dir) {
     if (!gifpath || !current_dir) {
@@ -32,7 +36,7 @@ int gif_apply(const char *gifpath, const char *current_dir) {
         return -1;
     }
 
-    // refresh Caelestia if available
+    // refresh Caelestia
     gif_refresh_caelestia();
 
     return 0;
@@ -40,6 +44,9 @@ int gif_apply(const char *gifpath, const char *current_dir) {
 
 /**
  * @brief Open a GIF file with the default system application
+ *
+ * @param gifname Name of the GIF file to open
+ * @param gif_dir Directory where the GIF file is located
  */
 void gif_open(const char *gifname, const char *gif_dir) {
     if (!gifname || !gif_dir) {

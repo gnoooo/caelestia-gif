@@ -11,10 +11,10 @@
 #include <stdlib.h>
 
 int main(int argc, char *argv[]) {
-    // Parse command-line arguments
+    // parse command-line arguments
     Args args = args_parse(argc, argv);
     
-    // Handle immediate actions (help, version, init)
+    // handle immediate actions (help, version, init)
     if (args.show_help) {
         if (args.session_mode) {
             args_print_help_session();
@@ -36,24 +36,24 @@ int main(int argc, char *argv[]) {
         return 0;
     }
     
-    // Validate that a mode was selected
+    // validate that a mode was selected
     if (!args.session_mode && !args.media_mode && !args.cli_mode) {
         fprintf(stderr, "Error: No mode selected. Use -h for help.\n");
         return 1;
     }
     
-    // Initialize configuration
+    // initialize configuration
     Config *cfg = config_init();
     if (!cfg) {
         fprintf(stderr, "Error: Failed to initialize configuration\n");
         return 1;
     }
     
-    // Detect system capabilities
+    // detect system capabilities
     config_set_has_magick(cfg, has_cmd("magick"));
     config_set_is_kitty(cfg, is_term_kitty());
     
-    // Ensure required directories exist
+    // ensure required directories exist
     if (ensure_dir(config_get_current_dir(cfg)) != 0) {
         fprintf(stderr, "Warning: Could not create current directory\n");
     }
@@ -64,20 +64,20 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     
-    // Create thumbnail directories if using Kitty
+    // create thumbnail directories if using Kitty
     if (config_is_kitty(cfg)) {
         ensure_dir(config_get_thumb_cache_dir(cfg));
         ensure_dir(config_get_thumb_session_dir(cfg));
     }
     
-    // Generate thumbnails if Kitty and ImageMagick are available
+    // generate thumbnails if Kitty and ImageMagick are available
     if (config_is_kitty(cfg) && config_has_magick(cfg)) {
         thumbnails_generate(cfg, args.regenerate);
     } else if (config_is_kitty(cfg) && !config_has_magick(cfg)) {
         printf("Note: ImageMagick not found, thumbnails will not be generated\n");
     }
     
-    // Scan for GIFs
+    // scan for GIFs
     char **gifs = NULL;
     int ngifs = scan_gifs(config_get_gif_dir(cfg), &gifs);
     
@@ -90,10 +90,11 @@ int main(int argc, char *argv[]) {
     
     printf("Found %d GIF(s)\n", ngifs);
     
-    // Scan for thumbnails (if Kitty)
+    // scan for thumbnails (if Kitty)
     char **thumbs = NULL;
     int nthumbs = 0;
     
+    // only scan for thumbnails if in Kitty terminal
     if (config_is_kitty(cfg)) {
         nthumbs = scan_gifs(config_get_thumb_session_dir(cfg), &thumbs);
         if (nthumbs > 0) {
@@ -101,18 +102,18 @@ int main(int argc, char *argv[]) {
         }
     }
     
-    // Run the appropriate mode
+    // run the appropriate mode
     int result = 0;
     
     if (args.session_mode) {
-        // Initialize terminal for interactive mode
+        // initialize terminal for interactive mode
         terminal_init();
         terminal_setup_signals();
         
-        // Run interactive session selector
+        // run interactive session selector
         int selected = ui_session_loop(cfg, gifs, thumbs, ngifs, nthumbs);
         
-        // Restore terminal
+        // restore terminal
         terminal_restore();
         
         if (selected >= 0) {
@@ -132,7 +133,7 @@ int main(int argc, char *argv[]) {
         result = 1;
     }
     
-    // Cleanup
+    // cleanup
     free_gif_list(gifs, ngifs);
     if (thumbs) {
         free_gif_list(thumbs, nthumbs);
