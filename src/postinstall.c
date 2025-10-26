@@ -289,18 +289,36 @@ int edit_shell_json(void) {
     free(base_dir);
 
     // save
-    char *string = cJSON_Print(json);
+    //char *string = cJSON_PrintBuffered(json, 0, cJSON_False);
+    int prebuffer = 65536;
+    cJSON_bool format = cJSON_True; // active la mise en forme (indentation/sauts de ligne)
+
+    char *string = cJSON_PrintBuffered(json, prebuffer, format);
+    if (string == NULL) {
+        fprintf(stderr, "Erreur: échec d'impression du JSON\n");
+        cJSON_Delete(json);
+        return -1;
+    }
+
     fp = fopen(shell_json_path, "w");
-    if (fp){
-        fputs(string, fp);
-        fclose(fp);
-    } else {
+    if (!fp) {
         fprintf(stderr, FG_RED "Error opening shell.json for writing.\n" FG_DEFAULT);
         cJSON_free(string);
         cJSON_Delete(json);
         return -1;
     }
 
+    for (char *p = string; *p; p++) {
+        if (*p == '\t') {
+            //*p = ' ';
+            fputc(' ', fp);
+            fputc(' ', fp);
+        } else {
+            fputc(*p, fp);
+        }
+    }
+
+    fclose(fp);
     cJSON_free(string);
     cJSON_Delete(json);
     return 0;
