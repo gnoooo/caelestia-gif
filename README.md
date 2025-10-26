@@ -95,17 +95,19 @@ By default, Caelestia GIF Manager uses the following directory structure to stor
 ```
 ~/
 └── Pictures/
-    └── CaelestiaGifs/
-        ├── sessionGif/
-        │   ├── current/
-        │   │   └── current.gif
-        │   ├── thumbnails/
-        │   └── [your_gif_folders]/
-        └── mediaGif/
-            ├── current/
-            │   └── current.gif
-            ├── thumbnails/
-            └── [your_gif_folders]/
+    ├── CaelestiaGifs/
+    │   ├── sessionGif/
+    │   │   ├── current/
+    │   │   │   └── current.gif
+    │   │   └── [your_gifs]
+    │   └── mediaGif/
+    │       ├── current/
+    │       │   └── current.gif
+    │       └── [your_gifs]
+    └── .cache/
+        └── caelestia_gifs_thumb/
+            ├── sessionGif/
+            └── mediaGif/
 ```
 
 If you wish to change the default directory, don't use the env variable, it's not well implemented (yet?). Instead, you'll have to modify the source code and recompile it. (i'm sorry, i'll fix that later...)
