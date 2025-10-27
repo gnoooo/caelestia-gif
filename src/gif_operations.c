@@ -7,6 +7,40 @@
 #include <unistd.h>
 #include <limits.h>
 
+
+int get_gif_delay(const char *gifpath) {
+    if (!gifpath) {
+        fprintf(stderr, "Error: Invalid parameter for get_gif_delay\n");
+        return -1;
+    }
+
+    // construct command to get delay using ImageMagick
+    const char *cmdparts[] = {
+        "identify -format \"%T\n\" \"", gifpath, "\" 2>/dev/null"
+    };
+    char *cmd = alloc_concat(cmdparts, 3);
+
+    // execute command and read output (only first line)
+    FILE *fp = popen(cmd, "r");
+    if (!fp) {
+        fprintf(stderr, "Error: Failed to run command to get GIF delay\n");
+        free(cmd);
+        return -1;
+    }
+    char buffer[16];
+    if (fgets(buffer, sizeof(buffer), fp) == NULL) {
+        fprintf(stderr, "Error: No output from command to get GIF delay\n");
+        pclose(fp);
+        free(cmd);
+        return -1;
+    }
+    pclose(fp);
+    free(cmd);
+    // parse delay value
+    int delay = atoi(buffer);
+    return delay;
+}
+
 /**
  * @brief Apply the selected GIF as the current session GIF
  *
@@ -33,9 +67,20 @@ int gif_apply(const char *gifpath, const char *current_dir, const char *typemode
     // delete existing current.gif (ignore errors if it doesn't exist)
     unlink(target_path);
 
-    // copy selected GIF to current.gif
-    const char *cmdparts[] = {"cp ", gifpath, " ", target_path};
-    char *cmd = alloc_concat(cmdparts, 4);
+    // convert gif with 1.5x speed
+    int delay = get_gif_delay(gifpath);
+    if (delay <= 0) {
+        fprintf(stderr, "Error: Invalid GIF delay retrieved\n");
+        free(target_path);
+        return -1;
+    }
+    char new_delay[16];
+    snprintf(new_delay, sizeof(new_delay), "%d", (int)(delay * 0.67));
+
+    const char *cmdparts[] = {
+        "magick ", gifpath, " -coalesce -set delay ", new_delay, " -loop 0 ", target_path
+    };
+    char *cmd = alloc_concat(cmdparts, 6);
     
     int result = run_cmd(cmd);
     if (result != 0) {

@@ -6,6 +6,9 @@
 #define MAX_PATH_LEN (PATH_MAX + 256)
 #define THUMB_SIZE 48
 
+#define ENV_CAELESTIA_GIFS_FOLDER "CAELESTIAL_GIFS_FOLDER"
+#define ENV_CAELESTIA_GIFS_FOLDER_DEFAULT "/Pictures/CaelestiaGifs" // by default, HOME/...
+
 typedef struct {
     char *gif_dir;
     char *thumb_cache_dir;

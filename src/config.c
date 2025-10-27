@@ -26,7 +26,7 @@ Config* config_init(void) {
 
     // get environment variables 
     // CAELESTIA_GIFS_FOLDER might not be set, so we handle that case by using HOME
-    const char *CAELESTIA_GIFS_FOLDER = getenv("CAELESTIA_GIFS_FOLDER");
+    const char *CAELESTIA_GIFS_FOLDER = getenv(ENV_CAELESTIA_GIFS_FOLDER); // defined in config.h
     const char *HOME = getenv("HOME");
 
     if (!HOME) {
@@ -43,7 +43,7 @@ Config* config_init(void) {
         sessiongifs_folder = CAELESTIA_GIFS_FOLDER ? strdup(CAELESTIA_GIFS_FOLDER) : NULL;
     } else {
         // otherwise, use default: $HOME/Pictures
-        const char *defaultparts[] = {HOME, "/Pictures"};
+        const char *defaultparts[] = {HOME, ENV_CAELESTIA_GIFS_FOLDER_DEFAULT}; // defined in config.h
         sessiongifs_folder = alloc_concat(defaultparts, sizeof(defaultparts) / sizeof(defaultparts[0]));
         if (!sessiongifs_folder) {
             // allocation failed
@@ -54,8 +54,8 @@ Config* config_init(void) {
     }
 
     // construct full paths (to allocate the exact size of memory needed)
-    const char *gifdirparts[] = {sessiongifs_folder, "/CaelestiaGifs/sessionGif"};
-    const char *currentdirparts[] = {sessiongifs_folder, "/CaelestiaGifs/.current"};
+    const char *gifdirparts[] = {sessiongifs_folder, "/sessionGif"};
+    const char *currentdirparts[] = {sessiongifs_folder, "/.current"};
     const char *thumbcacheparts[] = {HOME, "/.cache/caelestia_gifs_thumb"};
     const char *thumbsessionparts[] = {HOME, "/.cache/caelestia_gifs_thumb/sessionGif"};
 
