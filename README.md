@@ -1,6 +1,6 @@
 # Caelestia GIF Manager (`caelestia-gif`)
 
-<img href="./images/wide_logo.png" alt="Caelestia GIF Manager Logo" width="600"/>
+![Caelestia GIF Manager logo]("images/wide_logo.png")
 
 A terminal user interface (TUI) written in C for managing GIFs (sessionGif and mediaGif) in the Caelestia shell environment.
 
