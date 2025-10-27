@@ -46,6 +46,7 @@ void args_print_help_session(void) {
     printf("options:\n");
     printf("  -h, --help        show this help message and exit\n");
     printf("  -r, --regenerate  regenerate all thumbnails\n");
+    printf("  --verbose         enable verbose output\n");
 }
 
 /**
@@ -59,6 +60,7 @@ void args_print_help_media(void) {
     printf("options:\n");
     printf("  -h, --help        show this help message and exit\n");
     printf("  -r, --regenerate  regenerate all thumbnails\n");
+    printf("  --verbose         enable verbose output\n");
 }
 
 /**
@@ -70,6 +72,7 @@ static Args args_init_defaults(void) {
     args.show_version = 0;
     args.init_mode = 0;
     args.regenerate = 0;
+    args.verbose = 0;
     args.session_mode = 0;
     args.media_mode = 0;
     args.cli_mode = 0;
@@ -101,6 +104,9 @@ static int args_parse_subcommand(
         } else if (strcmp(argv[i], "-r") == 0 || strcmp(argv[i], "--regenerate") == 0) {
             // if regenerate is requested, set regenerate flag
             args->regenerate = 1;
+        } else if (strcmp(argv[i], "--verbose") == 0) {
+            // if verbose is requested, set verbose flag
+            args->verbose = 1;
         } else {
             // else unknown argument
             fprintf(stderr, "Error: Unknown argument for %s mode: %s\n", subcommand, argv[i]);

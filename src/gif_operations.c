@@ -75,7 +75,7 @@ int gif_apply(const char *gifpath, const char *current_dir, const char *typemode
         return -1;
     }
     char new_delay[16];
-    snprintf(new_delay, sizeof(new_delay), "%d", (int)(delay * 0.67));
+    snprintf(new_delay, sizeof(new_delay), "%d", (int)(delay * SPEED_RATIO));
 
     const char *cmdparts[] = {
         "magick ", gifpath, " -coalesce -set delay ", new_delay, " -loop 0 ", target_path

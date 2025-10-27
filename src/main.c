@@ -7,6 +7,7 @@
 #include "gif_operations.h"
 #include "args.h"
 #include "postinstall.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -88,8 +89,10 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     
-    printf("Found %d GIF(s)\n", ngifs);
-    
+    if (args.verbose) {
+        printf("Found %d GIF(s)\n", ngifs);
+    }
+
     // scan for thumbnails (if Kitty)
     char **thumbs = NULL;
     int nthumbs = 0;
@@ -97,7 +100,7 @@ int main(int argc, char *argv[]) {
     // only scan for thumbnails if in Kitty terminal
     if (config_is_kitty(cfg)) {
         nthumbs = scan_gifs(config_get_thumb_session_dir(cfg), &thumbs);
-        if (nthumbs > 0) {
+        if (nthumbs > 0 && args.verbose) {
             printf("Found %d thumbnail(s)\n", nthumbs);
         }
     }
@@ -116,11 +119,13 @@ int main(int argc, char *argv[]) {
         // restore terminal
         terminal_restore();
         
-        if (selected >= 0) {
+        if (selected >= 0 && args.verbose) {
             printf("Applied GIF: %s\n", ui_get_basename(gifs[selected]));
             result = 0;
         } else {
-            printf("Selection cancelled\n");
+            if (args.verbose) {
+                printf("Selection cancelled\n");
+            }
             result = 0;
         }
     }
