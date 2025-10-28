@@ -92,6 +92,8 @@ install: $(TARGET)
 uninstall:
 	@echo "Removing $(DESTDIR)/bin/caelestia-gif..."
 	rm -f $(DESTDIR)/bin/caelestia-gif
+	rm -f $(DESTDIR)/share/doc/caelestia-gif/README.md
+	rm -f $(DESTDIR)/share/licenses/caelestia-gif/LICENSE
 	@echo "Uninstall complete."
 
 rebuild: clean all
