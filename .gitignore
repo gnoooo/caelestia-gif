@@ -4,7 +4,7 @@
 *.out
 caelestia-gif
 install_bin
-*.sh
+#*.sh
 *_old.c
 *.tar.gz
 
