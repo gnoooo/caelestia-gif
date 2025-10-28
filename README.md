@@ -39,10 +39,12 @@ sudo make install
 caelestia-gif --init
 ```
 
-### (NOT IMPLEMENTED YET) What is `install.sh`?
+### What is `install.sh`?
 The repository will soon contain an `install.sh` file. This file is a simple Bash script that automates the installation of Caelestia GIF Manager. It will:
 - Clone the repository from GitLab
-- And compile the source code using `make` and `make install`
+- Compile the source code using `make`
+- Install the compiled binary to `/usr/local/bin/` using install command
+- Run `caelestia-gif --init` to set up the necessary configuration and directories
 
 
 ## Usage
@@ -143,6 +145,26 @@ If you wish to change the default directory, don't use the env variable, it's no
 If you're using Kitty (which is recommended), the Graphics Protocol will be used to display GIF preview. For this functionality, we have to generate thumbnails for each GIF using ImageMagick, because if not, the GIFs would be too large or too small to be displayed in the terminal. These images are stored in `$HOME/.cache/caelestia_gifs_thumb/sessionGif/` and `$HOME/.cache/caelestia_gifs_thumb/mediaGif/`.
 
 These images are not generated each time, only when a new GIF is added to the directory.
+
+## Uninstallation
+To uninstall Caelestia GIF Manager, you can use your AUR helper:
+```bash
+yay -R caelestia-gif
+# or
+paru -R caelestia-gif
+```
+
+There is also a script to uninstall:
+```bash
+curl -sSL https://gitlab.com/gnoooo/caelestia-gif/-/raw/master/uninstall.sh?ref_type=heads | sh
+```
+
+Or you can manually remove the installed files:
+```bash
+sudo rm /usr/bin/caelestia-gif
+sudo rm /usr/share/doc/caelestia-gif/README.md
+sudo rm -r /usr/share/licences/caelestia-gif/LICENSE
+```
 
 ---
 

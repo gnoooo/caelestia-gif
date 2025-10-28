@@ -5,6 +5,7 @@ set -e  # stop on error
 PKG_NAME="caelestia-gif"
 INSTALL_DIR="/usr/bin"
 DOC_DIR="/usr/share/doc/$PKG_NAME"
+LICENSE_DIR="/usr/share/doc/$PKG_NAME/LICENSE"
 
 # Check root
 if [ "$EUID" -ne 0 ]; then
@@ -26,6 +27,14 @@ if [ -d "$DOC_DIR" ]; then
     echo "Removed documentation: $DOC_DIR"
 else
     echo "No documentation found at $DOC_DIR"
+fi
+
+# Remove license
+if [ -f "$LICENSE_DIR" ]; then
+    rm -f "$LICENSE_DIR"
+    echo "Removed license: $LICENSE_DIR"
+else
+    echo "No license found at $LICENSE_DIR"
 fi
 
 echo "$PKG_NAME successfully uninstalled."

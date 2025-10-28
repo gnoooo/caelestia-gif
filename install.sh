@@ -33,3 +33,7 @@ install -Dm644 "./LICENSE" "/usr/share/doc/$PKG_NAME/LICENSE"
 echo "$PKG_NAME installed to $INSTALL_DIR/$PKG_NAME"
 echo "Documentation installed to /usr/share/doc/$PKG_NAME/"
 echo "License installed to /usr/share/doc/$PKG_NAME/LICENSE"
+
+# Init
+echo "Running caelestia-gif --init..."
+caelestia-gif --init
