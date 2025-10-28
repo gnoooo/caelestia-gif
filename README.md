@@ -159,6 +159,13 @@ There is also a script to uninstall:
 curl -sSL https://gitlab.com/gnoooo/caelestia-gif/-/raw/master/uninstall.sh?ref_type=heads | sh
 ```
 
+If you have cloned the repository and used the makefile:
+```bash
+# Go in the cloned repository
+cd caelestia-gif
+sudo make uninstall
+```
+
 Or you can manually remove the installed files:
 ```bash
 sudo rm /usr/bin/caelestia-gif
