@@ -64,6 +64,8 @@ Where `[subcommand]` can be:
 You can add some flags:
 - `-h`, `--help`: Show help information for the command or subcommand.
 - `-r`, `--regenerate`: Regenerate thumbnails for all GIFs in the directory.
+- `-k`, `--no-kitty`: Force disable Kitty Graphics Protocol for GIF preview.
+- `--verbose`: Enable verbose output for debugging purposes.
 
 ### Example
 ```bash
