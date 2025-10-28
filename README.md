@@ -4,7 +4,10 @@
 
 A terminal user interface (TUI) written in C for managing GIFs (sessionGif and mediaGif) in the Caelestia shell environment.
 
+## Table of Contents
 [TOC]
+
+---
 
 ## Introduction
 Caelestia GIF Manager is a lightweight TUI tool designed to easily browse, preview and set GIF for your Caelestia shell session menu and media player. It supports thumbnail generation (via ImageMagick) and display previews directly in the Kitty terminal emulator. Use the `session` subcommand to select a session GIF quickly.
@@ -91,6 +94,24 @@ You can customize the directory where Caelestia GIF Manager looks for GIFs by se
 - `CAELESTIA_GIF_DIR`: Sets the base directory for storing GIFs.
 
 Right now (1.0.2), the environment variable support is not fully implemented, so it's recommended to use the default directory structure or modify the source code directly. I will fix that in future releases.
+
+## Dependencies
+Caelestia GIF Manager relies on the following dependencies (which are, if you're using an AUR helper, automatically installed):
+- Depends: 
+    - `imagemagick` (for thumbnail generation)
+    - `kitty` (for GIF preview using Graphics Protocol, optional but recommended)
+    - `ncurses` (for some TUI functionality)
+    - `cjson` (for JSON manipulation, used in `--init`)
+    - `bash`
+- Make depends:
+    - `gcc`
+    - `make`
+    - `base-devel`
+
+The command to install all (on Arch Linux):
+```bash
+sudo pacman -S imagemagick kitty ncurses cjson bash gcc make base-devel --needed
+```
 
 ## Default directory structure
 By default, Caelestia GIF Manager uses the following directory structure to store and manage GIFs:

@@ -46,6 +46,7 @@ void args_print_help_session(void) {
     printf("options:\n");
     printf("  -h, --help        show this help message and exit\n");
     printf("  -r, --regenerate  regenerate all thumbnails\n");
+    printf("  -k, --no-kitty    disable kitty terminal graphics support\n");
     printf("  --verbose         enable verbose output\n");
 }
 
@@ -60,6 +61,7 @@ void args_print_help_media(void) {
     printf("options:\n");
     printf("  -h, --help        show this help message and exit\n");
     printf("  -r, --regenerate  regenerate all thumbnails\n");
+    printf("  -k, --no-kitty    disable kitty terminal graphics support\n");
     printf("  --verbose         enable verbose output\n");
 }
 
@@ -104,6 +106,9 @@ static int args_parse_subcommand(
         } else if (strcmp(argv[i], "-r") == 0 || strcmp(argv[i], "--regenerate") == 0) {
             // if regenerate is requested, set regenerate flag
             args->regenerate = 1;
+        } else if (strcmp(argv[i], "-k") == 0 || strcmp(argv[i], "--no-kitty") == 0) {
+            // if no-kitty is requested, set no_kitty flag
+            args->no_kitty = 1;
         } else if (strcmp(argv[i], "--verbose") == 0) {
             // if verbose is requested, set verbose flag
             args->verbose = 1;

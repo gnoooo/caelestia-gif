@@ -6,6 +6,7 @@ typedef struct {
     int show_version;  // Display version
     int init_mode;     // Run postinstall configuration
     int regenerate;    // Regenerate thumbnails
+    int no_kitty;      // Disable Kitty terminal integration
     int verbose;       // Enable verbose output
     int session_mode;  // Run in session mode
     int media_mode;    // Run in media mode

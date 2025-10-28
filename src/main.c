@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
     
     // detect system capabilities
     config_set_has_magick(cfg, has_cmd("magick"));
-    config_set_is_kitty(cfg, is_term_kitty());
+    if (!args.no_kitty) config_set_is_kitty(cfg, is_term_kitty());
     
     // ensure required directories exist
     if (ensure_dir(config_get_current_dir(cfg)) != 0) {
