@@ -92,7 +92,7 @@ static void ui_draw_item(const char *basename, int index, int is_selected, int i
     
     // spacing for Kitty thumbnail
     if (is_kitty) {
-        printf("         ");
+        printf("          ");
     } else {
         printf(" ");
     }
@@ -272,11 +272,9 @@ int ui_session_loop(
         int viewport_changed = (state.top != state.prev_top);
         
         if (viewport_changed || state.need_full_redraw) {
-            ui_full_redraw(&state, header_lines, n_header_lines, margin, 
-                          is_kitty, lines_per_item);
+            ui_full_redraw(&state, header_lines, n_header_lines, margin, is_kitty, lines_per_item);
         } else {
-            ui_incremental_redraw(&state, margin, n_header_lines, is_kitty, 
-                                 lines_per_item);
+            ui_incremental_redraw(&state, margin, n_header_lines, is_kitty, lines_per_item);
         }
         
         state.prev_selected = state.selected;

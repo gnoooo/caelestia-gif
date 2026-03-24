@@ -171,10 +171,7 @@ void terminal_show_image_kitty(const char *path, int x, int y) {
     snprintf(xbuf, sizeof(xbuf), "%d", x);
     snprintf(ybuf, sizeof(ybuf), "%d", y);
     const char *cmdparts[] = {
-        "kitty +kitten icat --no-trailing-newline --silent --place 0x0@",
-        xbuf,
-        "x",
-        ybuf, 
+        "kitty +kitten icat --no-trailing-newline --silent --align left --place 7x7@", xbuf, "x", ybuf,
         " \"",
         path,
         "\""
