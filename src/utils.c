@@ -20,18 +20,16 @@ char* alloc_concat(const char **strings, size_t n) {
     for (size_t i = 0; i < n; i++) {
         total_len += strlen(strings[i]);
     }
-    if (total_len == 0) {
-        char *buffer = malloc(1);
-        if (buffer) buffer[0] = '\0';
-        return buffer;
-    }
     char *buffer = malloc(total_len);
     if (!buffer) return NULL;
 
-    buffer[0] = '\0';
+    char *p = buffer;
     for (size_t i = 0; i < n; i++) {
-        strcat(buffer, strings[i]);
+        size_t len = strlen(strings[i]);
+        memcpy(p, strings[i], len);
+        p += len;
     }
+    *p = '\0';
     return buffer;
 }
 
