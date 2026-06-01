@@ -38,7 +38,7 @@ static int generate_single_thumbnail(const char *gifpath, const char *thumbpath,
         " \"", thumbpath, "\" >/dev/null 2>&1"
     };
     
-    char *cmd = alloc_concat(parts, 8);
+    char *cmd = alloc_concat(parts, 9);
     if (!cmd) {
         fprintf(stderr, "Error: Failed to allocate memory for magick command\n");
         return -1;
