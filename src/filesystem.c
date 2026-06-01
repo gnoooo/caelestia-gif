@@ -60,6 +60,10 @@ int ensure_dir(const char *path) {
     return 0;
 }
 
+static int compare_paths(const void *a, const void *b) {
+    return strcmp(*(const char **)a, *(const char **)b);
+}
+
 /**
  * @brief Scan directory for GIFs (return count and fill list). Caller must free list entries.
  *
@@ -126,8 +130,13 @@ int scan_gifs(const char *dir, char ***out_list) {
         }
         list[n++] = fullpath;
     }
-    closedir(d); 
-    *out_list = list; 
+    closedir(d);
+
+    if (n > 1) {
+        qsort(list, n, sizeof(char *), compare_paths);
+    }
+
+    *out_list = list;
     return (int)n;
 }
 
@@ -140,7 +149,7 @@ int scan_gifs(const char *dir, char ***out_list) {
  * @return void
  */
 char* thumb_path_for(const char *gifpath, const char *thumb_session_dir) {
-    if (!gifpath || thumb_session_dir) {
+    if (!gifpath || !thumb_session_dir) {
         fprintf(stderr, "Error: at thumb_path_for: invalid arguments\n");
         return NULL;
     }
@@ -156,35 +165,6 @@ char* thumb_path_for(const char *gifpath, const char *thumb_session_dir) {
     // construct thumbnail path
     const char *parts[] = {thumb_session_dir, "/", base};
     return alloc_concat(parts, sizeof(parts)/sizeof(parts[0]));
-}
-
-/**
- * @brief Open a GIF file using the default system viewer.
- *
- * @param gifname Name of the GIF file to open.
- */
-void open_gif(const char *gifname, const char *gif_dir) {
-    if (!gifname) {
-        fprintf(stderr, "Error: at open_gif: gifname is NULL\n");
-        return;
-    }
-
-    // construct full path to the GIF
-    const char *gifpathparts[] = {gif_dir, "/", gifname};
-    char *gifpath = alloc_concat(gifpathparts, sizeof(gifpathparts)/sizeof(gifpathparts[0]));
-    if (!gifpath) {
-        fprintf(stderr, "Error: at open_gif: failed to allocate gifpath\n");
-        return;
-    }
-    // build command to open the GIF
-    const char *cmdparts[] = {"xdg-open \"", gifpath, "\" >/dev/null 2>&1 &"};
-    char *cmd = alloc_concat(cmdparts, sizeof(cmdparts)/sizeof(cmdparts[0]));
-    if (!cmd) {
-        fprintf(stderr, "Error: at open_gif: failed to allocate cmd\n");
-        free(gifpath);
-        return;
-    }
-    system(cmd);
 }
 
 /**
