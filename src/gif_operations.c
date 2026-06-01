@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <unistd.h>
 #include <limits.h>
 
@@ -37,8 +38,13 @@ int get_gif_delay(const char *gifpath) {
     pclose(fp);
     free(cmd);
     // parse delay value
-    int delay = atoi(buffer);
-    return delay;
+    char *end;
+    long delay_l = strtol(buffer, &end, 10);
+    if (end == buffer || delay_l <= 0 || delay_l > INT_MAX) {
+        fprintf(stderr, "Error: Invalid GIF delay value\n");
+        return -1;
+    }
+    return (int)delay_l;
 }
 
 /**
@@ -101,24 +107,20 @@ int gif_apply(const char *gifpath, const char *current_dir, const char *typemode
 /**
  * @brief Open a GIF file with the default system application
  *
- * @param gifname Name of the GIF file to open
- * @param gif_dir Directory where the GIF file is located
+ * @param gifpath Full path to the GIF file
  */
-void gif_open(const char *gifname, const char *gif_dir) {
-    if (!gifname || !gif_dir) {
-        fprintf(stderr, "Error: Invalid parameters for gif_open\n");
+void gif_open(const char *gifpath) {
+    if (!gifpath) {
+        fprintf(stderr, "Error: Invalid parameter for gif_open\n");
         return;
     }
-
-    // construct full path to GIF
-    const char *gifpathparts[] = {gif_dir, "/", gifname};
-    char *gifpath = alloc_concat(gifpathparts, 3);
 
     // open with xdg-open (background process)
     const char *cmdparts[] = {"xdg-open \"", gifpath, "\" >/dev/null 2>&1 &"};
     char *cmd = alloc_concat(cmdparts, 3);
-    
+    if (!cmd) return;
     system(cmd);
+    free(cmd);
 }
 
 /**
@@ -138,6 +140,7 @@ int gif_refresh_caelestia(void) {
     }
 
     // wait for caelestia to pick up the change
+    // this is a bit hacky, but we need to wait a moment to ensure that caelestia has released the old GIF file before we try to restart the shellq
     usleep(500000);  // 0.5s
 
     // restart caelestia shell daemon
