@@ -40,7 +40,7 @@ Config* config_init(void) {
     char *sessiongifs_folder = NULL;
     if (CAELESTIA_GIFS_FOLDER) {
         // if CAELESTIA_GIFS_FOLDER is set, use it
-        sessiongifs_folder = CAELESTIA_GIFS_FOLDER ? strdup(CAELESTIA_GIFS_FOLDER) : NULL;
+        sessiongifs_folder = strdup(CAELESTIA_GIFS_FOLDER);
     } else {
         // otherwise, use default: $HOME/Pictures
         const char *defaultparts[] = {HOME, ENV_CAELESTIA_GIFS_FOLDER_DEFAULT}; // defined in config.h
