@@ -114,13 +114,16 @@ int main(int argc, char *argv[]) {
         terminal_setup_signals();
         
         // run interactive session selector
-        int selected = ui_session_loop(cfg, gifs, thumbs, ngifs, nthumbs, "session.gif");
+        int selected = ui_session_loop(cfg, gifs, thumbs, ngifs, nthumbs);
         
         // restore terminal
         terminal_restore();
         
-        if (selected >= 0 && args.verbose) {
-            printf("Applied GIF: %s\n", ui_get_basename(gifs[selected]));
+        if (selected >= 0) {
+            gif_apply(gifs[selected], config_get_current_dir(cfg), "session.gif");
+            if (args.verbose) {
+                printf("Applied GIF: %s\n", ui_get_basename(gifs[selected]));
+            }
             result = 0;
         } else {
             if (args.verbose) {

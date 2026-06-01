@@ -235,8 +235,7 @@ int ui_session_loop(
         char **gifs, 
         char **thumbs, 
         int ngifs, 
-        int nthumbs,
-        const char *typemode
+        int nthumbs
     ) {
     if (!cfg || !gifs || ngifs == 0) return -1;
     
@@ -286,13 +285,11 @@ int ui_session_loop(
             // quit
             return -1;
         } else if (action == 2) {
-            // select and apply
-            gif_apply(gifs[state.selected], config_get_current_dir(cfg), typemode);
+            // select: return index, caller will apply
             return state.selected;
         } else if (action == 3) {
             // open GIF with default application
-            const char *basename = ui_get_basename(gifs[state.selected]);
-            gif_open(basename, config_get_gif_dir(cfg));
+            gif_open(gifs[state.selected]);
         }
     }
     
