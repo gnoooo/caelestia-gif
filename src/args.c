@@ -30,7 +30,7 @@ void args_print_help_main(void) {
     printf("subcommands:\n");
     printf("  COMMAND        the subcommand to run\n");
     printf("    session      run in session mode (to change sessionGif)\n");
-    printf("    media        run in media mode (NOT IMPLEMENTED YET)\n");
+    printf("    media        run in media mode (to change mediaGif)\n");
     printf("    cli          run in CLI mode (NOT IMPLEMENTED YET)\n");
 }
 
