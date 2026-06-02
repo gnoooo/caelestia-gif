@@ -77,12 +77,7 @@ static void ui_update_viewport(UIState *state) {
 /**
  * @brief Draw a single item in the list
  */
-static void ui_draw_item(const char *basename, int index, int is_selected, int is_kitty, int text_row, int margin) {
-    (void)margin;
-    (void)text_row;
-
-    //terminal_move_cursor(text_row, 1);
-    
+static void ui_draw_item(const char *basename, int index, int is_selected, int is_kitty) {
     // cursor indicator
     if (is_selected) {
         printf(" > " CNUMBER "%d" CNORMAL, index + 1);
@@ -136,7 +131,7 @@ static void ui_full_redraw(
        
         int text_row = item_base_row+1 + (is_kitty ? 1 : 0);
         terminal_move_cursor(text_row, 1);
-        ui_draw_item(basename, i, (i == state->selected), is_kitty, text_row, margin);
+        ui_draw_item(basename, i, (i == state->selected), is_kitty);
 
         // show thumbnail if Kitty
         if (is_kitty) {
@@ -174,7 +169,7 @@ static void ui_incremental_redraw(
         terminal_clear_line();
         
         const char *basename = ui_get_basename(state->items[state->prev_selected]);
-        ui_draw_item(basename, state->prev_selected, 0, is_kitty, text_row, margin);
+        ui_draw_item(basename, state->prev_selected, 0, is_kitty);
     }
     
     // redraw current selection (selected)
@@ -189,7 +184,7 @@ static void ui_incremental_redraw(
         terminal_clear_line();
         
         const char *basename = ui_get_basename(state->items[state->selected]);
-        ui_draw_item(basename, state->selected, 1, is_kitty, text_row, margin);
+        ui_draw_item(basename, state->selected, 1, is_kitty);
     }
     
     fflush(stdout);
@@ -200,9 +195,7 @@ static void ui_incremental_redraw(
  * 
  * @return int 0 to continue, 1 to quit, 2 to select, 3 to open
  */
-static int ui_handle_input(UIState *state, char **gifs, const Config *cfg) {
-    (void)gifs;
-    (void)cfg;
+static int ui_handle_input(UIState *state) {
 
     int c = terminal_getch();
     
@@ -228,27 +221,37 @@ static int ui_handle_input(UIState *state, char **gifs, const Config *cfg) {
 }
 
 /**
- * @brief Run interactive session selection loop
+ * @brief Run interactive GIF selection loop
+ *
+ * @param mode  Display name for the current mode (e.g. "session", "media")
+ * @return      Index of selected GIF, or -1 if cancelled
  */
-int ui_session_loop(
-        const Config *cfg, 
-        char **gifs, 
-        char **thumbs, 
-        int ngifs, 
-        int nthumbs
+int ui_loop(
+        const Config *cfg,
+        char **gifs,
+        char **thumbs,
+        int ngifs,
+        int nthumbs,
+        const char *mode
     ) {
     if (!cfg || !gifs || ngifs == 0) return -1;
-    
+
     // determine display list (thumbnails if available, otherwise GIFs)
     char **display_list = nthumbs > 0 ? thumbs : gifs;
     int display_count = nthumbs > 0 ? nthumbs : ngifs;
-    
+
     int is_kitty = config_is_kitty(cfg);
     int margin = 1;
-    
+
+    // build dynamic title line so the mode name is embedded
+    char title_buf[128];
+    snprintf(title_buf, sizeof(title_buf),
+             CTITLE "Available %s GIFs" CNORMAL,
+             mode ? mode : "session");
+
     // header lines
     const char *header_lines[] = {
-        CTITLE "Available GIFs:" CNORMAL,
+        title_buf,
         CSUBTITLE "Use Up/Down to navigate, Enter to select, o to open, q to quit." CNORMAL
     };
     int n_header_lines = 2;
@@ -279,7 +282,7 @@ int ui_session_loop(
         state.prev_selected = state.selected;
         
         // handle input
-        int action = ui_handle_input(&state, gifs, cfg);
+        int action = ui_handle_input(&state);
         
         if (action == 1) {
             // quit

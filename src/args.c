@@ -169,30 +169,19 @@ Args args_parse(int argc, char *argv[]) {
             return args;
         }
         else if (strcmp(argv[i], "media") == 0) {
-            // if media mode is requested, set media_mode
             args.media_mode = 1;
-            
-            // parse media-specific options
             if (args_parse_subcommand(&args, argc, argv, i + 1, "media") != 0) {
-                // if error in parsing, show help for media mode
                 args.show_help = 1;
                 args.media_mode = 0;
             }
-            
-            // media mode not implemented yet
-            fprintf(stderr, "Error: media mode not implemented yet.\n");
-            args.show_help = 1;
-            args.media_mode = 0;
             return args;
         }
         else if (strcmp(argv[i], "cli") == 0) {
-            // if cli mode is requested, set cli_mode
             args.cli_mode = 1;
-            
-            // CLI mode not implemented yet
-            fprintf(stderr, "Error: CLI mode not implemented yet.\n");
-            args.show_help = 1;
-            args.cli_mode = 0;
+            if (args_parse_subcommand(&args, argc, argv, i + 1, "cli") != 0) {
+                args.show_help = 1;
+                args.cli_mode = 0;
+            }
             return args;
         }
         else {

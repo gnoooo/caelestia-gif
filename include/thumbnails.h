@@ -3,8 +3,6 @@
 
 #include "config.h"
 
-void thumbnails_generate(const Config *cfg, int clean_thumbs);
-int thumbnails_exists(const char *gifpath, const Config *cfg);
-int thumbnails_needs_regeneration(const char *gifpath, const char *thumbpath);
+void thumbnails_generate(const Config *cfg, const char *gif_dir, const char *thumb_dir, int clean_thumbs);
 
 #endif // __THUMBNAILS_H__

@@ -33,13 +33,24 @@ void terminal_init(void) {
     // fix TERM if needed (xterm-kitty can cause problems)
     char *term = getenv("TERM");
     if (term && strcmp(term, "xterm-kitty") == 0) {
-        if (system("infocmp xterm-kitty > /dev/null 2>&1") != 0) {
+        if (run_cmd("infocmp xterm-kitty > /dev/null 2>&1") != 0) {
             setenv("TERM", "xterm-256color", 1);
         }
     }
 
-    // save screen (alternate screen buffer)
-    system("tput smcup");
+    // switch to alternate screen buffer
+    printf("\033[?1049h");
+    fflush(stdout);
+
+    // set raw mode for input (no echo, no line buffering)
+    struct termios raw = original_termios;
+    raw.c_lflag &= ~(ICANON | ECHO);
+    raw.c_cc[VMIN] = 1;
+    raw.c_cc[VTIME] = 0;
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &raw) == -1) {
+        perror("tcsetattr");
+        exit(EXIT_FAILURE);
+    }
 
     // hide cursor
     terminal_hide_cursor();
@@ -61,7 +72,8 @@ void terminal_restore(void) {
     }
 
     // restore screen
-    system("tput rmcup");
+    printf("\033[?1049l");
+    fflush(stdout);
 
     // restore termios
     if (tcsetattr(STDIN_FILENO, TCSANOW, &original_termios) == -1) {
@@ -95,26 +107,9 @@ TermSize terminal_get_size(void) {
  * @brief Get a single character input without echo
  */
 int terminal_getch(void) {
-    struct termios oldt, newt;
-    char ch;
-
-    // get current terminal settings
-    tcgetattr(STDIN_FILENO, &oldt);
-
-    // copy settings to modify
-    newt = oldt;
-    newt.c_lflag &= ~(ICANON | ECHO); // disable canonical mode and echo
-
-    // apply new settings
-    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-
-    // read a single character
-    ch = getchar();
-
-    // restore original terminal settings
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-
-    return ch;
+    unsigned char ch;
+    if (read(STDIN_FILENO, &ch, 1) != 1) return -1;
+    return (int)ch;
 }
 
 /**

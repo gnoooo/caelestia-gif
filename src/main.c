@@ -54,41 +54,49 @@ int main(int argc, char *argv[]) {
     config_set_has_magick(cfg, has_cmd("magick"));
     if (!args.no_kitty) config_set_is_kitty(cfg, is_term_kitty());
     
+    // select active directories based on mode
+    const char *active_gif_dir   = args.media_mode
+                                   ? config_get_media_gif_dir(cfg)
+                                   : config_get_gif_dir(cfg);
+    const char *active_thumb_dir = args.media_mode
+                                   ? config_get_thumb_media_dir(cfg)
+                                   : config_get_thumb_session_dir(cfg);
+
     // ensure required directories exist
     if (ensure_dir(config_get_current_dir(cfg)) != 0) {
         fprintf(stderr, "Warning: Could not create current directory\n");
     }
-    
-    if (ensure_dir(config_get_gif_dir(cfg)) != 0) {
+
+    if (ensure_dir(active_gif_dir) != 0) {
         fprintf(stderr, "Error: Could not create GIF directory\n");
         config_free(cfg);
         return 1;
     }
-    
+
     // create thumbnail directories if using Kitty
     if (config_is_kitty(cfg)) {
         ensure_dir(config_get_thumb_cache_dir(cfg));
-        ensure_dir(config_get_thumb_session_dir(cfg));
+        ensure_dir(active_thumb_dir);
     }
-    
+
     // generate thumbnails if Kitty and ImageMagick are available
     if (config_is_kitty(cfg) && config_has_magick(cfg)) {
-        thumbnails_generate(cfg, args.regenerate);
+        thumbnails_generate(cfg, active_gif_dir, active_thumb_dir, args.regenerate);
     } else if (config_is_kitty(cfg) && !config_has_magick(cfg)) {
         printf("Note: ImageMagick not found, thumbnails will not be generated\n");
     }
-    
+
     // scan for GIFs
     char **gifs = NULL;
-    int ngifs = scan_gifs(config_get_gif_dir(cfg), &gifs);
-    
+    int ngifs = scan_gifs(active_gif_dir, &gifs);
+
     if (ngifs == 0) {
-        fprintf(stderr, "No GIFs found in %s\n", config_get_gif_dir(cfg));
+        fprintf(stderr, "No GIFs found in %s\n", active_gif_dir);
         printf("Please add GIF files to this directory.\n");
         config_free(cfg);
         return 1;
     }
-    
+
     if (args.verbose) {
         printf("Found %d GIF(s)\n", ngifs);
     }
@@ -96,10 +104,10 @@ int main(int argc, char *argv[]) {
     // scan for thumbnails (if Kitty)
     char **thumbs = NULL;
     int nthumbs = 0;
-    
+
     // only scan for thumbnails if in Kitty terminal
     if (config_is_kitty(cfg)) {
-        nthumbs = scan_gifs(config_get_thumb_session_dir(cfg), &thumbs);
+        nthumbs = scan_gifs(active_thumb_dir, &thumbs);
         if (nthumbs > 0 && args.verbose) {
             printf("Found %d thumbnail(s)\n", nthumbs);
         }
@@ -112,13 +120,13 @@ int main(int argc, char *argv[]) {
         // initialize terminal for interactive mode
         terminal_init();
         terminal_setup_signals();
-        
+
         // run interactive session selector
-        int selected = ui_session_loop(cfg, gifs, thumbs, ngifs, nthumbs);
-        
+        int selected = ui_loop(cfg, gifs, thumbs, ngifs, nthumbs, "session");
+
         // restore terminal
         terminal_restore();
-        
+
         if (selected >= 0) {
             gif_apply(gifs[selected], config_get_current_dir(cfg), "session.gif");
             if (args.verbose) {
@@ -133,8 +141,28 @@ int main(int argc, char *argv[]) {
         }
     }
     else if (args.media_mode) {
-        fprintf(stderr, "Error: Media mode not implemented yet\n");
-        result = 1;
+        // initialize terminal for interactive mode
+        terminal_init();
+        terminal_setup_signals();
+
+        // run interactive media selector
+        int selected = ui_loop(cfg, gifs, thumbs, ngifs, nthumbs, "media");
+
+        // restore terminal
+        terminal_restore();
+
+        if (selected >= 0) {
+            gif_apply(gifs[selected], config_get_current_dir(cfg), "media.gif");
+            if (args.verbose) {
+                printf("Applied GIF: %s\n", ui_get_basename(gifs[selected]));
+            }
+            result = 0;
+        } else {
+            if (args.verbose) {
+                printf("Selection cancelled\n");
+            }
+            result = 0;
+        }
     }
     else if (args.cli_mode) {
         fprintf(stderr, "Error: CLI mode not implemented yet\n");

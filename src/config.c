@@ -54,21 +54,26 @@ Config* config_init(void) {
     }
 
     // construct full paths (to allocate the exact size of memory needed)
-    const char *gifdirparts[] = {sessiongifs_folder, "/sessionGif"};
-    const char *currentdirparts[] = {sessiongifs_folder, "/.current"};
-    const char *thumbcacheparts[] = {HOME, "/.cache/caelestia_gifs_thumb"};
-    const char *thumbsessionparts[] = {HOME, "/.cache/caelestia_gifs_thumb/sessionGif"};
+    const char *gifdirparts[]        = {sessiongifs_folder, "/sessionGif"};
+    const char *mediagifdirparts[]   = {sessiongifs_folder, "/mediaGif"};
+    const char *currentdirparts[]    = {sessiongifs_folder, "/.current"};
+    const char *thumbcacheparts[]    = {HOME, "/.cache/caelestia_gifs_thumb"};
+    const char *thumbsessionparts[]  = {HOME, "/.cache/caelestia_gifs_thumb/sessionGif"};
+    const char *thumbmediaparts[]    = {HOME, "/.cache/caelestia_gifs_thumb/mediaGif"};
 
     // dynamic allocation of paths
-    cfg->gif_dir = alloc_concat(gifdirparts, sizeof(gifdirparts) / sizeof(gifdirparts[0]));
-    cfg->current_dir = alloc_concat(currentdirparts, sizeof(currentdirparts) / sizeof(currentdirparts[0]));
-    cfg->thumb_cache_dir = alloc_concat(thumbcacheparts, sizeof(thumbcacheparts) / sizeof(thumbcacheparts[0]));
+    cfg->gif_dir           = alloc_concat(gifdirparts,       sizeof(gifdirparts)       / sizeof(gifdirparts[0]));
+    cfg->media_gif_dir     = alloc_concat(mediagifdirparts,  sizeof(mediagifdirparts)  / sizeof(mediagifdirparts[0]));
+    cfg->current_dir       = alloc_concat(currentdirparts,   sizeof(currentdirparts)   / sizeof(currentdirparts[0]));
+    cfg->thumb_cache_dir   = alloc_concat(thumbcacheparts,   sizeof(thumbcacheparts)   / sizeof(thumbcacheparts[0]));
     cfg->thumb_session_dir = alloc_concat(thumbsessionparts, sizeof(thumbsessionparts) / sizeof(thumbsessionparts[0]));
+    cfg->thumb_media_dir   = alloc_concat(thumbmediaparts,   sizeof(thumbmediaparts)   / sizeof(thumbmediaparts[0]));
 
     // free temp variable
     free(sessiongifs_folder);
 
-    if (!cfg->gif_dir || !cfg->current_dir || !cfg->thumb_cache_dir || !cfg->thumb_session_dir) {
+    if (!cfg->gif_dir || !cfg->media_gif_dir || !cfg->current_dir ||
+        !cfg->thumb_cache_dir || !cfg->thumb_session_dir || !cfg->thumb_media_dir) {
         // allocation failed
         fprintf(stderr, "Error: Failed to allocate memory for config paths\n");
         config_free(cfg);
@@ -87,9 +92,11 @@ void config_free(Config *cfg) {
     if (!cfg) return;
 
     free(cfg->gif_dir);
+    free(cfg->media_gif_dir);
     free(cfg->current_dir);
     free(cfg->thumb_cache_dir);
     free(cfg->thumb_session_dir);
+    free(cfg->thumb_media_dir);
     free(cfg);
 }
 
@@ -107,12 +114,20 @@ const char* config_get_gif_dir(const Config *cfg) {
     return cfg ? cfg->gif_dir : NULL;
 }
 
+const char* config_get_media_gif_dir(const Config *cfg) {
+    return cfg ? cfg->media_gif_dir : NULL;
+}
+
 const char* config_get_thumb_cache_dir(const Config *cfg) {
     return cfg ? cfg->thumb_cache_dir : NULL;
 }
 
 const char* config_get_thumb_session_dir(const Config *cfg) {
     return cfg ? cfg->thumb_session_dir : NULL;
+}
+
+const char* config_get_thumb_media_dir(const Config *cfg) {
+    return cfg ? cfg->thumb_media_dir : NULL;
 }
 
 const char* config_get_current_dir(const Config *cfg) {

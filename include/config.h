@@ -11,8 +11,10 @@
 
 typedef struct {
     char *gif_dir;
+    char *media_gif_dir;
     char *thumb_cache_dir;
     char *thumb_session_dir;
+    char *thumb_media_dir;
     char *current_dir;
     int thumb_size;
     int has_magick;
@@ -24,8 +26,10 @@ Config* config_init(void);
 void config_free(Config *cfg);
 
 const char* config_get_gif_dir(const Config *cfg);
+const char* config_get_media_gif_dir(const Config *cfg);
 const char* config_get_thumb_cache_dir(const Config *cfg);
 const char* config_get_thumb_session_dir(const Config *cfg);
+const char* config_get_thumb_media_dir(const Config *cfg);
 const char* config_get_current_dir(const Config *cfg);
 int config_get_thumb_size(const Config *cfg);
 int config_has_magick(const Config *cfg);
