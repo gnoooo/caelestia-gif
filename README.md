@@ -1,6 +1,6 @@
 # Caelestia GIF Manager (`caelestia-gif`)
 
-![Caelestia GIF Manager logo](images/wide_logo.png)
+![Caelestia GIF Manager logo](images/caelestia-gif_banner-thin.png)
 
 A terminal user interface (TUI) written in C for managing GIFs (sessionGif and mediaGif) in the Caelestia shell environment.
 
@@ -39,7 +39,7 @@ caelestia-gif --init
 ```
 
 ### What is `install.sh`?
-The repository contains an `install.sh` file — a simple Bash script that automates the installation of Caelestia GIF Manager. It will:
+The repository contains an `install.sh` file, a simple Bash script that automates the installation of Caelestia GIF Manager. It will:
 - Clone the repository from GitHub
 - Compile the source code using `make`
 - Install the compiled binary to `/usr/local/bin/` using the `install` command
@@ -106,9 +106,9 @@ caelestia-gif session
 ```
 
 ## Dependencies
-- `imagemagick` — thumbnail generation
-- `kitty` — GIF preview via Kitty Graphics Protocol (optional but recommended)
-- `cjson` — JSON parsing for `--init`
+- `imagemagick`: thumbnail generation
+- `kitty`: GIF preview via Kitty Graphics Protocol (optional but recommended)
+- `cjson`: JSON parsing for `--init`
 - `bash`
 
 Build dependencies:
