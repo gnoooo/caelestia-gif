@@ -8,6 +8,8 @@
 
 #define ENV_CAELESTIA_GIFS_FOLDER "CAELESTIA_GIFS_FOLDER"
 #define ENV_CAELESTIA_GIFS_FOLDER_DEFAULT "/Pictures/CaelestiaGifs" // by default, HOME/...
+#define ENV_CAELESTIA_THUMB_DIR "CAELESTIA_THUMB_DIR"
+#define ENV_CAELESTIA_THUMB_DIR_DEFAULT "/.cache/caelestia_gifs_thumb" // by default, HOME/...
 
 typedef struct {
     char *gif_dir;

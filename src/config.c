@@ -24,9 +24,9 @@ Config* config_init(void) {
     cfg->has_magick = 0;
     cfg->is_kitty = 0;
 
-    // get environment variables 
-    // CAELESTIA_GIFS_FOLDER might not be set, so we handle that case by using HOME
-    const char *CAELESTIA_GIFS_FOLDER = getenv(ENV_CAELESTIA_GIFS_FOLDER); // defined in config.h
+    // get environment variables
+    const char *CAELESTIA_GIFS_FOLDER = getenv(ENV_CAELESTIA_GIFS_FOLDER);
+    const char *CAELESTIA_THUMB_DIR   = getenv(ENV_CAELESTIA_THUMB_DIR);
     const char *HOME = getenv("HOME");
 
     if (!HOME) {
@@ -53,13 +53,28 @@ Config* config_init(void) {
         }
     }
 
+    // determine thumbnail cache base directory
+    char *thumb_base = NULL;
+    if (CAELESTIA_THUMB_DIR) {
+        thumb_base = strdup(CAELESTIA_THUMB_DIR);
+    } else {
+        const char *defaultthumb[] = {HOME, ENV_CAELESTIA_THUMB_DIR_DEFAULT};
+        thumb_base = alloc_concat(defaultthumb, 2);
+    }
+    if (!thumb_base) {
+        fprintf(stderr, "Error: Failed to allocate memory for thumbnail cache path\n");
+        free(sessiongifs_folder);
+        free(cfg);
+        return NULL;
+    }
+
     // construct full paths (to allocate the exact size of memory needed)
     const char *gifdirparts[]        = {sessiongifs_folder, "/sessionGif"};
     const char *mediagifdirparts[]   = {sessiongifs_folder, "/mediaGif"};
     const char *currentdirparts[]    = {sessiongifs_folder, "/.current"};
-    const char *thumbcacheparts[]    = {HOME, "/.cache/caelestia_gifs_thumb"};
-    const char *thumbsessionparts[]  = {HOME, "/.cache/caelestia_gifs_thumb/sessionGif"};
-    const char *thumbmediaparts[]    = {HOME, "/.cache/caelestia_gifs_thumb/mediaGif"};
+    const char *thumbcacheparts[]    = {thumb_base, ""};
+    const char *thumbsessionparts[]  = {thumb_base, "/sessionGif"};
+    const char *thumbmediaparts[]    = {thumb_base, "/mediaGif"};
 
     // dynamic allocation of paths
     cfg->gif_dir           = alloc_concat(gifdirparts,       sizeof(gifdirparts)       / sizeof(gifdirparts[0]));
@@ -69,8 +84,9 @@ Config* config_init(void) {
     cfg->thumb_session_dir = alloc_concat(thumbsessionparts, sizeof(thumbsessionparts) / sizeof(thumbsessionparts[0]));
     cfg->thumb_media_dir   = alloc_concat(thumbmediaparts,   sizeof(thumbmediaparts)   / sizeof(thumbmediaparts[0]));
 
-    // free temp variable
+    // free temp variables
     free(sessiongifs_folder);
+    free(thumb_base);
 
     if (!cfg->gif_dir || !cfg->media_gif_dir || !cfg->current_dir ||
         !cfg->thumb_cache_dir || !cfg->thumb_session_dir || !cfg->thumb_media_dir) {

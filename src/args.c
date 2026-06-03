@@ -56,7 +56,7 @@ void args_print_help_session(void) {
 void args_print_help_media(void) {
     printf("usage: caelestia-gif media [-h] [-r]\n");
     printf("\n");
-    printf("Interactive media GIF selector (NOT IMPLEMENTED YET)\n");
+    printf("Interactive media GIF selector\n");
     printf("\n");
     printf("options:\n");
     printf("  -h, --help        show this help message and exit\n");

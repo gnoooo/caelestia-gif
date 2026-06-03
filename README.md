@@ -4,18 +4,17 @@
 
 A terminal user interface (TUI) written in C for managing GIFs (sessionGif and mediaGif) in the Caelestia shell environment.
 
-## Table of Contents
-[TOC]
 
 ---
 
 ## Introduction
-Caelestia GIF Manager is a lightweight TUI tool designed to easily browse, preview and set GIF for your Caelestia shell session menu and media player. It supports thumbnail generation (via ImageMagick) and display previews directly in the Kitty terminal emulator. Use the `session` subcommand to select a session GIF quickly.
+Caelestia GIF Manager is a lightweight TUI tool designed to easily browse, preview and set GIFs for your Caelestia Shell session menu and media player. It supports thumbnail generation (via ImageMagick) and displays live previews directly in the Kitty terminal emulator. Use the `session` subcommand to select a session GIF, and the `media` subcommand to select a media GIF.
 
 ## Installation
 ### Commands
-There are many different ways to install Caelestia GIF Manager:
-1. From AUR (on Arch Linux)
+There are multiple ways to install Caelestia GIF Manager:
+
+1. From AUR (on Arch Linux):
 ```bash
 yay -S caelestia-gif
 caelestia-gif --init
@@ -25,14 +24,14 @@ caelestia-gif --init
 ```
 
 2. With the built-in Bash install script: (NOT IMPLEMENTED YET)
-   - Using a single command (`curl`+`sh`): 
+   - Using a single command (`curl` + `sh`):
       ```bash
-       curl -sSL https://gitlab.com/gnoooo/caelestia-gif/-/raw/master/install.sh?ref_type=heads | sh
+      curl -sSL https://raw.githubusercontent.com/gnoooo/caelestia-gif/refs/heads/master/install.sh | sh
       ```
 
 3. From source (manual compilation):
 ```bash
-git clone https://gitlab.com/gnoooo/caelestia-gif.git
+git clone git@github.com:gnoooo/caelestia-gif.git
 cd caelestia-gif
 make
 sudo make install
@@ -40,133 +39,125 @@ caelestia-gif --init
 ```
 
 ### What is `install.sh`?
-The repository will soon contain an `install.sh` file. This file is a simple Bash script that automates the installation of Caelestia GIF Manager. It will:
-- Clone the repository from GitLab
+The repository contains an `install.sh` file — a simple Bash script that automates the installation of Caelestia GIF Manager. It will:
+- Clone the repository from GitHub
 - Compile the source code using `make`
-- Install the compiled binary to `/usr/local/bin/` using install command
+- Install the compiled binary to `/usr/local/bin/` using the `install` command
 - Run `caelestia-gif --init` to set up the necessary configuration and directories
 
 
 ## Usage
-To run Caelestia GIF Manager, simply execute the following command in your terminal:
 ```bash
-caelestia-gif [-h] [-v] [--init] [subcommand] [flags] 
+caelestia-gif [-h] [-v] [--init] [subcommand] [flags]
 ```
 
-
 Where `[subcommand]` can be:
-| Subcommand | Description                                 |
-|------------|---------------------------------------------|
-| session    | Opens the TUI to manage session GIFs.      |
-| media      | Opens the TUI to manage media GIFs. (NOT IMPLEMENTED YET) |
-| cli        | Command-line interface to set GIF directly without TUI. (NOT IMPLEMENTED YET) |
+| Subcommand | Description |
+|------------|-------------|
+| `session`  | Opens the TUI to select and apply a session GIF. |
+| `media`    | Opens the TUI to select and apply a media GIF. |
+| `cli`      | Command-line interface to set a GIF without TUI. (NOT IMPLEMENTED YET) |
 
-
-
-You can add some flags:
-- `-h`, `--help`: Show help information for the command or subcommand.
-- `-r`, `--regenerate`: Regenerate thumbnails for all GIFs in the directory.
-- `-k`, `--no-kitty`: Force disable Kitty Graphics Protocol for GIF preview.
-- `--verbose`: Enable verbose output for debugging purposes.
+Available flags (for `session` and `media` subcommands):
+| Flag | Description |
+|------|-------------|
+| `-h`, `--help` | Show help for the command or subcommand. |
+| `-v`, `--version` | Print the current version. |
+| `--init` | Run post-installation setup. |
+| `-r`, `--regenerate` | Regenerate all thumbnails. |
+| `-k`, `--no-kitty` | Disable Kitty Graphics Protocol for previews. |
+| `--verbose` | Enable verbose output. |
 
 ### Example
 ```bash
-caelestia-gif session -r
+caelestia-gif session
+caelestia-gif media -r
 ```
 In the TUI:
-- Arrow keys: navigate
-- Enter: select a GIF
-- `o`: open the selected GIF file (alternative to Kitty preview)
-- `q` or Ctrl+C: exit the TUI
+- `↑` / `↓`: navigate the list
+- `Enter`: select and apply the GIF
+- `o`: open the selected GIF with the default application
+- `q` or `Ctrl+C`: exit without applying
 
 ## Configuration
-### Post installation setup
-To use this tool, you will need to have a specific configuration (see [directory structure section](#default-directory-structure)). Caelestia GIF Manager includes a setup helper, who can can be used with the command `caelestia-gif --init`. This command automates the configuration of Caelestia GIF Manager so the script runs perfectly. 
-
-It :
-- Creates the default Caelestia GIF directory (`~/Pictures/CaelestiaGifs/`) if it doesn't exist.
-- Creates subdirectories for session and media GIFs under the main directory.
-- Backs up existing configuration of Caelestia shell (`~/.config/caelestia/shell.json` renamed to `shell.bak.json`) if it exists.
-- Creates a default configuration file for Caelestia shell if missing.
-- Adds or updates the `sessionGif` entry (later `mediaGif` too) to point to your current GIF, by default:
-```bash
-    ~/Pictures/CaelestiaGifs/.current/session.gif"
-```
+### Post-installation setup
+Run `caelestia-gif --init` after installation. This command:
+- Creates the default GIF directory (`~/Pictures/CaelestiaGifs/`) if it doesn't exist.
+- Creates `sessionGif/` and `mediaGif/` subdirectories.
+- Backs up `~/.config/caelestia/shell.json` → `shell.bak.json` (skipped if backup already exists).
+- Creates or updates `shell.json` so the `sessionGif` path points to your current GIF:
+  ```
+  ~/Pictures/CaelestiaGifs/.current/session.gif
+  ```
 
 ### Environment Variables
-You can customize the directory where Caelestia GIF Manager looks for GIFs by setting the following environment variables:
-- `CAELESTIA_GIF_DIR`: Sets the base directory for storing GIFs.
+You can override the default directories using environment variables:
 
-Right now (1.0.2), the environment variable support is not fully implemented, so it's recommended to use the default directory structure or modify the source code directly. I will fix that in future releases.
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CAELESTIA_GIFS_FOLDER` | `~/Pictures/CaelestiaGifs` | Base directory for all GIF subdirectories. |
+| `CAELESTIA_THUMB_DIR` | `~/.cache/caelestia_gifs_thumb` | Directory for generated thumbnail cache. |
+
+Example:
+```bash
+export CAELESTIA_GIFS_FOLDER=/mnt/data/MyGifs
+export CAELESTIA_THUMB_DIR=/tmp/caelestia_thumbs
+caelestia-gif session
+```
 
 ## Dependencies
-Caelestia GIF Manager relies on the following dependencies (which are, if you're using an AUR helper, automatically installed):
-- Depends: 
-    - `imagemagick` (for thumbnail generation)
-    - `kitty` (for GIF preview using Graphics Protocol, optional but recommended)
-    - `ncurses` (for some TUI functionality)
-    - `cjson` (for JSON manipulation, used in `--init`)
-    - `bash`
-- Make depends:
-    - `gcc`
-    - `make`
-    - `base-devel`
+- `imagemagick` — thumbnail generation
+- `kitty` — GIF preview via Kitty Graphics Protocol (optional but recommended)
+- `cjson` — JSON parsing for `--init`
+- `bash`
 
-The command to install all (on Arch Linux):
+Build dependencies:
+- `gcc`, `make`, `base-devel`
+
+Install all on Arch Linux:
 ```bash
-sudo pacman -S imagemagick kitty ncurses cjson bash gcc make base-devel --needed
+sudo pacman -S imagemagick kitty cjson bash gcc make base-devel --needed
 ```
 
 ## Default directory structure
-By default, Caelestia GIF Manager uses the following directory structure to store and manage GIFs:
-
 ```
 ~/
-└── Pictures/
-    ├── CaelestiaGifs/
-    │   ├── sessionGif/
-    │   │   └── [your_gifs]
-    │   │
-    │   ├── mediaGif/
-    │   │   └── [your_gifs]
-    │   │
-    │   └── .current/
-    │       ├── session.gif
-    │       └── media.gif
-    │
-    └── .cache/
-        └── caelestia_gifs_thumb/
-            ├── sessionGif/
-            └── mediaGif/
+├── Pictures/
+│   └── CaelestiaGifs/
+│       ├── sessionGif/
+│       │   └── [your_session_gifs]
+│       ├── mediaGif/
+│       │   └── [your_media_gifs]
+│       └── .current/
+│           ├── session.gif
+│           └── media.gif
+│
+└── .cache/
+    └── caelestia_gifs_thumb/
+        ├── sessionGif/
+        └── mediaGif/
 ```
 
-If you wish to change the default directory, don't use the env variable, it's not well implemented (yet?). Instead, you'll have to modify the source code and recompile it. (i'm sorry, i'll fix that later...)
-
-If you're using Kitty (which is recommended), the Graphics Protocol will be used to display GIF preview. For this functionality, we have to generate thumbnails for each GIF using ImageMagick, because if not, the GIFs would be too large or too small to be displayed in the terminal. These images are stored in `$HOME/.cache/caelestia_gifs_thumb/sessionGif/` and `$HOME/.cache/caelestia_gifs_thumb/mediaGif/`.
-
-These images are not generated each time, only when a new GIF is added to the directory.
+Thumbnail images are generated only when a new GIF is added or `--regenerate` is used.
 
 ## Uninstallation
-To uninstall Caelestia GIF Manager, you can use your AUR helper:
+Via AUR helper:
 ```bash
 yay -R caelestia-gif
-# or
-paru -R caelestia-gif
 ```
 
-There is also a script to uninstall:
+Via the uninstall script:
 ```bash
-curl -sSL https://gitlab.com/gnoooo/caelestia-gif/-/raw/master/uninstall.sh?ref_type=heads | sh
+curl -sSL https://raw.githubusercontent.com/gnoooo/caelestia-gif/refs/heads/master/uninstall.sh | sh
 ```
 
-If you have cloned the repository and used the makefile:
+Via Makefile (if built from source):
 ```bash
-# Go in the cloned repository
 cd caelestia-gif
 sudo make uninstall
 ```
 
-Or you can manually remove the installed files:
+Manual removal:
 ```bash
 sudo rm /usr/bin/caelestia-gif
 sudo rm /usr/share/doc/caelestia-gif/README.md
@@ -176,18 +167,12 @@ sudo rm -r /usr/share/licences/caelestia-gif/LICENSE
 ---
 
 ## Licence
-Licensed under the GPL-3.0-or-later License. See the [LICENSE](https://gitlab.com/gnoooo/caelestia-gif/-/blob/master/LICENSE) file for more details.
+Licensed under the GPL-3.0-or-later License. See the [LICENSE](LICENSE) file for more details.
 
 ---
 
 ## Incoming
-- Media GIF management (`caelestia-gif media` subcommand)
 - Command-line interface (`caelestia-gif cli` subcommand)
-- Better environment variable support for custom directories
 - Improved installation script
-- Memory optimizations
-- Segmentation of code into multiple files for better maintainability (because right now it's a mess)
-- Change current.gif by a symlink to avoid copying files
-- Flag to force script to not use Kitty graphics protocol 
-- Flag for verbose
+- Use a symlink in `.current/` instead of copying the GIF file
 
