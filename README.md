@@ -23,10 +23,10 @@ paru -S caelestia-gif
 caelestia-gif --init
 ```
 
-2. With the built-in Bash install script: (NOT IMPLEMENTED YET)
+2. With the built-in Bash install script:
    - Using a single command (`curl` + `sh`):
       ```bash
-      curl -sSL https://raw.githubusercontent.com/gnoooo/caelestia-gif/refs/heads/master/install.sh | sh
+      curl -sSL https://raw.githubusercontent.com/gnoooo/caelestia-gif/refs/heads/master/install.sh | sudo sh
       ```
 
 3. From source (manual compilation):
