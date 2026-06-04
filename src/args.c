@@ -31,7 +31,7 @@ void args_print_help_main(void) {
     printf("  COMMAND        the subcommand to run\n");
     printf("    session      run in session mode (to change sessionGif)\n");
     printf("    media        run in media mode (to change mediaGif)\n");
-    printf("    cli          run in CLI mode (NOT IMPLEMENTED YET)\n");
+    printf("    cli          run in CLI mode\n");
 }
 
 
@@ -66,6 +66,25 @@ void args_print_help_media(void) {
 }
 
 /**
+ * @brief Print CLI mode help message
+ */
+void args_print_help_cli(void) {
+    printf("usage: caelestia-gif cli (session|media) [<gif_path>] [options]\n");
+    printf("\n");
+    printf("Apply a GIF directly without the TUI\n");
+    printf("\n");
+    printf("arguments:\n");
+    printf("  session           apply as session GIF\n");
+    printf("  media             apply as media GIF\n");
+    printf("  <gif_path>        path to the GIF file to apply\n");
+    printf("\n");
+    printf("options:\n");
+    printf("  -h, --help        show this help message and exit\n");
+    printf("  -l, --list        list available GIFs in the target directory\n");
+    printf("  --verbose         enable verbose output\n");
+}
+
+/**
  * @brief Initialize Args structure with default values
  */
 static Args args_init_defaults(void) {
@@ -78,6 +97,10 @@ static Args args_init_defaults(void) {
     args.session_mode = 0;
     args.media_mode = 0;
     args.cli_mode = 0;
+    args.cli_media_mode = 0;
+    args.cli_session_mode = 0;
+    args.cli_list = 0;
+    args.cli_gif_path = NULL;
     return args;
 }
 
@@ -118,6 +141,65 @@ static int args_parse_subcommand(
             return -1;
         }
     }
+    return 0;
+}
+
+/**
+ * @brief Parse CLI subcommand arguments
+ *
+ * Syntax: caelestia-gif cli (session|media) <gif_path> [--verbose]
+ */
+static int args_parse_cli(
+        Args *args,
+        int argc,
+        char *argv[],
+        int start_idx
+    ) {
+    for (int i = start_idx; i < argc; i++) {
+        if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
+            args->show_help = 1;
+            return 0;
+        } else if (strcmp(argv[i], "-l") == 0 || strcmp(argv[i], "--list") == 0) {
+            args->cli_list = 1;
+        } else if (strcmp(argv[i], "--verbose") == 0) {
+            args->verbose = 1;
+        } else if (strcmp(argv[i], "session") == 0) {
+            if (args->cli_media_mode) {
+                fprintf(stderr, "Error: cannot use both 'session' and 'media' in cli mode\n");
+                return -1;
+            }
+            args->cli_session_mode = 1;
+        } else if (strcmp(argv[i], "media") == 0) {
+            if (args->cli_session_mode) {
+                fprintf(stderr, "Error: cannot use both 'session' and 'media' in cli mode\n");
+                return -1;
+            }
+            args->cli_media_mode = 1;
+        } else if (argv[i][0] != '-') {
+            // positional argument: gif path
+            if (args->cli_gif_path) {
+                fprintf(stderr, "Error: unexpected extra argument: %s\n", argv[i]);
+                return -1;
+            }
+            args->cli_gif_path = argv[i];
+        } else {
+            fprintf(stderr, "Error: Unknown option for cli mode: %s\n", argv[i]);
+            return -1;
+        }
+    }
+
+    // validate required fields (unless help was requested)
+    if (!args->show_help) {
+        if (!args->cli_session_mode && !args->cli_media_mode) {
+            fprintf(stderr, "Error: cli mode requires 'session' or 'media'\n");
+            return -1;
+        }
+        if (!args->cli_list && !args->cli_gif_path) {
+            fprintf(stderr, "Error: cli mode requires a GIF path (or use -l to list)\n");
+            return -1;
+        }
+    }
+
     return 0;
 }
 
@@ -178,7 +260,7 @@ Args args_parse(int argc, char *argv[]) {
         }
         else if (strcmp(argv[i], "cli") == 0) {
             args.cli_mode = 1;
-            if (args_parse_subcommand(&args, argc, argv, i + 1, "cli") != 0) {
+            if (args_parse_cli(&args, argc, argv, i + 1) != 0) {
                 args.show_help = 1;
                 args.cli_mode = 0;
             }
