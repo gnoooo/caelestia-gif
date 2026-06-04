@@ -5,7 +5,7 @@
 set -e
 
 # CONFIG
-URL="https://gitlab.com/gnoooo/caelestia-gif.git"
+URL="git@github.com:gnoooo/caelestia-gif.git"
 PKG_NAME="caelestia-gif"
 INSTALL_DIR="/usr/bin"
 
