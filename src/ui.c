@@ -129,7 +129,7 @@ static void ui_full_redraw(
         const char *basename = ui_get_basename(state->items[i]);
         int item_base_row = items_start_row + (visible_count * lines_per_item);
        
-        int text_row = item_base_row+1 + (is_kitty ? 1 : 0);
+        int text_row = item_base_row + (is_kitty ? 2 : 0);
         terminal_move_cursor(text_row, 1);
         ui_draw_item(basename, i, (i == state->selected), is_kitty);
 
@@ -155,7 +155,7 @@ static void ui_incremental_redraw(
         int lines_per_item
     ) {
 
-    int items_start_row = margin + n_header_lines + 2;
+    int items_start_row = margin + n_header_lines + 1;
     
     // redraw previous selection (deselected)
     if (state->prev_selected >= state->top && 
@@ -163,7 +163,7 @@ static void ui_incremental_redraw(
         
         int text_row = items_start_row + 
                       ((state->prev_selected - state->top) * lines_per_item) + 
-                      (is_kitty ? 1 : 0);
+                      (is_kitty ? 2 : 0);
         
         terminal_move_cursor(text_row, 1);
         terminal_clear_line();
@@ -178,7 +178,7 @@ static void ui_incremental_redraw(
         
         int text_row = items_start_row + 
                       ((state->selected - state->top) * lines_per_item) + 
-                      (is_kitty ? 1 : 0);
+                      (is_kitty ? 2 : 0);
         
         terminal_move_cursor(text_row, 1);
         terminal_clear_line();
@@ -258,7 +258,7 @@ int ui_loop(
     
     // calculate layout
     TermSize term_size = terminal_get_size();
-    int lines_per_item = is_kitty ? 4 : 2;
+    int lines_per_item = is_kitty ? 4 : 1;
     int available_rows = term_size.rows - n_header_lines - margin - 2;
     
     // initialize UI state
