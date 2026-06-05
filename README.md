@@ -172,7 +172,5 @@ Licensed under the GPL-3.0-or-later License. See the [LICENSE](LICENSE) file for
 ---
 
 ## Incoming
-- Command-line interface (`caelestia-gif cli` subcommand)
-- Improved installation script
-- Use a symlink in `.current/` instead of copying the GIF file
+- Nothing left, I guess?
 
